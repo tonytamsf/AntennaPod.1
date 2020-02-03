@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="horizontal"
+    android:padding="4dp">
+
+    <ImageView
+        android:id="@+id/imgvCover"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight=".50"
+        android:contentDescription="@string/cover_label"
+        android:foreground="?attr/selectableItemBackground"
+        android:scaleType="fitCenter"
+        android:transitionName="coverTransition"
+        tools:src="@android:drawable/sym_def_app_icon" />
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:layout_weight=".25"
+        android:padding="8dp">
+
+    <TextView
+        android:id="@+id/txtvPodcastTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.15"
+        android:ellipsize="end"
+        android:gravity="left"
+        android:layout_gravity="bottom|left"
+        android:maxLines="2"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textIsSelectable="true"
+        tools:text="Podcast" />
+
+    <TextView
+        android:id="@+id/txtvEpisodeTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.15"
+        android:ellipsize="end"
+        android:gravity="left"
+        android:maxLines="3"
+        android:textColor="?android:attr/textColorPrimary"
+        android:textIsSelectable="true"
+        tools:text="Episode" />
+
+    <TextView
+        android:id="@+id/txtvEpisodeDescription"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.50"
+        android:ellipsize="end"
+        android:gravity="left"
+        android:maxLines="3"
+        android:textColor="?android:attr/textColorSecondary"
+        android:textIsSelectable="true"
+        tools:text="Episode" />
+    <TextView
+        android:id="@+id/txtvPubDate"
+        style="@style/AntennaPod.TextView.ListItemSecondaryTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|right"
+        android:layout_marginStart="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_weight="0.10"
+        android:contentDescription="Published Date"
+        android:maxLines="1"
+        tools:background="@android:color/holo_green_dark"
+        tools:text="Jan 1" />
+    </LinearLayout>
+
+</LinearLayout>
