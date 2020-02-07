@@ -186,6 +186,7 @@ public class ImportExportPreferencesFragment extends PreferenceFragmentCompat {
             ComponentName cn = intent.getComponent();
             Intent mainIntent = Intent.makeRestartActivityTask(cn);
             startActivity(mainIntent);
+            Runtime.getRuntime().exit(0);
         });
         d.show();
     }
@@ -216,8 +217,8 @@ public class ImportExportPreferencesFragment extends PreferenceFragmentCompat {
 
     private void showExportErrorDialog(final Throwable error) {
         progressDialog.dismiss();
-        final AlertDialog.Builder alert = new AlertDialog.Builder(getContext())
-                .setNeutralButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
+        final AlertDialog.Builder alert = new AlertDialog.Builder(getContext());
+        alert.setPositiveButton(android.R.string.ok, (dialog, which) -> dialog.dismiss());
         alert.setTitle(R.string.export_error_label);
         alert.setMessage(error.getMessage());
         alert.show();
