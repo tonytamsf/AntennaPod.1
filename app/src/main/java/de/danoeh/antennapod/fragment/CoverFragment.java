@@ -34,6 +34,7 @@ public class CoverFragment extends Fragment {
     private View root;
     private TextView txtvPodcastTitle;
     private TextView txtvEpisodeTitle;
+    private TextView txtvEpisodeDescription;
     private TextView txtvPubDate;
     private ImageView imgvCover;
     private PlaybackController controller;
@@ -46,6 +47,7 @@ public class CoverFragment extends Fragment {
         root = inflater.inflate(R.layout.cover_fragment, container, false);
         txtvPodcastTitle = root.findViewById(R.id.txtvPodcastTitle);
         txtvEpisodeTitle = root.findViewById(R.id.txtvEpisodeTitle);
+        txtvEpisodeDescription= root.findViewById(R.id.txtvEpisodeDescription);
         txtvPubDate = root.findViewById(R.id.txtvPubDate);
         imgvCover = root.findViewById(R.id.imgvCover);
         imgvCover.setOnClickListener(v -> onPlayPause());
@@ -73,6 +75,10 @@ public class CoverFragment extends Fragment {
     private void displayMediaInfo(@NonNull Playable media) {
         txtvPodcastTitle.setText(media.getFeedTitle());
         txtvEpisodeTitle.setText(media.getEpisodeTitle());
+        if (txtvEpisodeDescription != null) {
+            txtvEpisodeDescription.setText(media.getEpisodeDescription());
+        }
+
         if (media.getEpisodePubDate() != null) {
             String pubDateStr = DateUtils.formatAbbrev(getActivity(), media.getEpisodePubDate());
             txtvPubDate.setVisibility(View.VISIBLE);

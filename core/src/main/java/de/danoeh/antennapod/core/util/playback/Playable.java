@@ -53,6 +53,11 @@ public interface Playable extends Parcelable,
     String getEpisodeTitle();
 
     /**
+     * Returns the description of the episode that this playable represents
+     */
+    String getEpisodeDescription();
+
+    /**
      * Returns a list of chapter marks or null if this Playable has no chapters.
      */
     List<Chapter> getChapters();

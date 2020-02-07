@@ -110,6 +110,11 @@ public class ExternalMedia implements Playable {
     }
 
     @Override
+    public String getEpisodeDescription() {
+        return "";
+    }
+
+    @Override
     public String getEpisodeTitle() {
         return episodeTitle;
     }

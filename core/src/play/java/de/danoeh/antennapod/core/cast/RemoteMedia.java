@@ -55,12 +55,13 @@ public class RemoteMedia implements Playable {
 
     public RemoteMedia(String downloadUrl, String itemId, String feedUrl, String feedTitle,
                        String episodeTitle, String episodeLink, String feedAuthor,
-                       String imageUrl, String feedLink, String mime_type, Date pubDate) {
+                       String imageUrl, String feedLink, String mime_type, Date pubDate, episodeDescription) {
         this.downloadUrl = downloadUrl;
         this.itemIdentifier = itemId;
         this.feedUrl = feedUrl;
         this.feedTitle = feedTitle;
         this.episodeTitle = episodeTitle;
+        this.episodeDescription = episodeDescription;
         this.episodeLink = episodeLink;
         this.feedAuthor = feedAuthor;
         this.imageUrl = imageUrl;
@@ -148,6 +149,11 @@ public class RemoteMedia implements Playable {
     @Override
     public String getEpisodeTitle() {
         return episodeTitle;
+    }
+
+    @Override
+    public String getEpisodeDescription() {
+        return "NONE";
     }
 
     @Override
@@ -280,6 +286,11 @@ public class RemoteMedia implements Playable {
     @Override
     public Callable<String> loadShownotes() {
         return () -> (notes != null) ? notes : "";
+    }
+
+    @Override
+    public getEpisodeDescription() {
+        return (notes != null) ? notes : "";
     }
 
     @Override
