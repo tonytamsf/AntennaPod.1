@@ -1094,6 +1094,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             capabilities = capabilities | PlaybackStateCompat.ACTION_SKIP_TO_PREVIOUS;
         }
 
+        sessionState.addCustomAction(new PlaybackStateCompat.CustomAction.Builder(
+                CUSTOM_ACTION_REWIND,
+                getString(R.string.rewind_label), R.drawable.ic_notification_fast_rewind)
+                .build());
+
         sessionState.setActions(capabilities);
 
         flavorHelper.sessionStateAddActionForWear(sessionState,
