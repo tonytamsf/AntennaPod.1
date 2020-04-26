@@ -514,13 +514,12 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             return;
         }
 
-        FeedMedia feedMedia = (FeedMedia) playable;
-        FeedPreferences preferences = feedMedia.getItem().getFeed().getPreferences();
+        FeedPreferences preferences = ((FeedMedia) playable).getItem().getFeed().getPreferences();
         int skipIntro = preferences.getFeedSkipIntro();
 
         Context context = getApplicationContext();
         if (skipIntro > 0 && playable.getPosition() < skipIntro * 1000) {
-            int duration = getDuration();
+            int duration = playable.getDuration();
             if (skipIntro * 1000 < duration) {
                 Log.d(TAG, "skipIntro " + playable.getEpisodeTitle());
                 mediaPlayer.seekTo(skipIntro * 1000);
@@ -529,7 +528,11 @@ public class PlaybackService extends MediaBrowserServiceCompat {
                 Toast toast = Toast.makeText(context, skipIntroMesg,
                         Toast.LENGTH_LONG);
                 toast.show();
+            } else {
+                Log.d(TAG, "skipIntro - Not skipping duration is " + duration );
             }
+        } else {
+            Log.d(TAG, "skipIntro - Not skipping " + playable.getPosition());
         }
     }
 
@@ -874,11 +877,10 @@ public class PlaybackService extends MediaBrowserServiceCompat {
             taskManager.startWidgetUpdater();
             if (position != PlaybackServiceMediaPlayer.INVALID_TIME) {
                 playable.setPosition(position);
-            } else {
-                skipIntro(playable);
             }
             playable.onPlaybackStart();
             taskManager.startPositionSaver();
+            skipIntro(playable);
         }
 
         @Override
