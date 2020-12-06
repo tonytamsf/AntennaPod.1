@@ -15,7 +15,9 @@ import androidx.core.app.SafeJobIntentService;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.RemoteViews;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -118,7 +120,7 @@ public class PlayerWidgetJobService extends SafeJobIntentService {
         }
 
         if (media != null) {
-            views.setOnClickPendingIntent(R.id.layout_left, startMediaPlayer);
+            //views.setOnClickPendingIntent(R.id.widgetLayout, startMediaPlayer);
 
             try {
                 Bitmap icon;
@@ -159,14 +161,17 @@ public class PlayerWidgetJobService extends SafeJobIntentService {
                 views.setImageViewResource(R.id.butPlay, R.drawable.ic_av_play_white_48dp);
                 views.setContentDescription(R.id.butPlay, getString(R.string.play_label));
             }
-            views.setOnClickPendingIntent(R.id.butPlay, createMediaButtonIntent());
+            //views.setOnClickPendingIntent(R.id.butPlay, createMediaButtonIntent());
+            //views.setOnClickPendingIntent(R.id.butRew, createRewindIntent());
+            //views.setOnClickPendingIntent(R.id.butFastfoward, createFastFowardIntent());
+            //views.setOnClickPendingIntent(R.id.butSkip, createFastSkipIntent());
         } else {
             nothingPlaying = true;
         }
 
         if (nothingPlaying) {
             // start the app if they click anything
-            views.setOnClickPendingIntent(R.id.layout_left, startMediaPlayer);
+            //views.setOnClickPendingIntent(R.id.widgetLayout, startMediaPlayer);
             views.setOnClickPendingIntent(R.id.butPlay, startMediaPlayer);
             views.setViewVisibility(R.id.txtvProgress, View.GONE);
             views.setViewVisibility(R.id.txtvTitle, View.GONE);
@@ -197,6 +202,7 @@ public class PlayerWidgetJobService extends SafeJobIntentService {
         }
     }
 
+
     /**
      * Creates an intent which fakes a mediabutton press
      */
@@ -209,6 +215,32 @@ public class PlayerWidgetJobService extends SafeJobIntentService {
         return PendingIntent.getBroadcast(this, 0, startingIntent, 0);
     }
 
+    private PendingIntent createRewindIntent() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_REWIND);
+        Intent startingIntent = new Intent(getBaseContext(), MediaButtonReceiver.class);
+        startingIntent.setAction(MediaButtonReceiver.NOTIFY_BUTTON_RECEIVER);
+        startingIntent.putExtra(Intent.EXTRA_KEY_EVENT, event);
+
+        return PendingIntent.getBroadcast(this, 0, startingIntent, 0);
+    }
+
+    private PendingIntent createFastFowardIntent() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_FAST_FORWARD);
+        Intent startingIntent = new Intent(getBaseContext(), MediaButtonReceiver.class);
+        startingIntent.setAction(MediaButtonReceiver.NOTIFY_BUTTON_RECEIVER);
+        startingIntent.putExtra(Intent.EXTRA_KEY_EVENT, event);
+
+        return PendingIntent.getBroadcast(this, 0, startingIntent, 0);
+    }
+
+    private PendingIntent createFastSkipIntent() {
+        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_MEDIA_SKIP_FORWARD);
+        Intent startingIntent = new Intent(getBaseContext(), MediaButtonReceiver.class);
+        startingIntent.setAction(MediaButtonReceiver.NOTIFY_BUTTON_RECEIVER);
+        startingIntent.putExtra(Intent.EXTRA_KEY_EVENT, event);
+
+        return PendingIntent.getBroadcast(this, 0, startingIntent, 0);
+    }
     private String getProgressString(int position, int duration, float speed) {
         if (position >= 0 && duration > 0) {
             TimeSpeedConverter converter = new TimeSpeedConverter(speed);

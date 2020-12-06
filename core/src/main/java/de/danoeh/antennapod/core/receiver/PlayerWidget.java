@@ -6,6 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
+import android.view.View;
+import android.widget.Toast;
 
 import java.util.Arrays;
 
@@ -59,6 +61,10 @@ public class PlayerWidget extends AppWidgetProvider {
     public static boolean isEnabled(Context context) {
         SharedPreferences prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         return prefs.getBoolean(KEY_ENABLED, false);
+    }
+    public void onClickRewindButton(View v)
+    {
+        Log.d(TAG, "onClickRewindButton");
     }
 
     private void setEnabled(Context context, boolean enabled) {

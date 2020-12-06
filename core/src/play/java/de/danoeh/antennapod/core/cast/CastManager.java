@@ -1132,6 +1132,7 @@ public class CastManager extends BaseCastManager implements OnFailedListener {
             Log.e(TAG, "Trying to play a video with no active media session");
             throw new NoConnectionException();
         }
+
         remoteMediaPlayer.play(mApiClient, customData)
                 .setResultCallback(result -> {
                     if (!result.getStatus().isSuccess()) {
