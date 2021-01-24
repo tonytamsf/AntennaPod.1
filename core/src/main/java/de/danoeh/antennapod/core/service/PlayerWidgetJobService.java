@@ -1,4 +1,4 @@
-package de.danoeh.antennapod.core.service;
+package de.danoeh.antennapod.service;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -19,9 +19,7 @@ import android.widget.RemoteViews;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
-
 import java.util.concurrent.TimeUnit;
-
 import de.danoeh.antennapod.core.R;
 import de.danoeh.antennapod.core.glide.ApGlideSettings;
 import de.danoeh.antennapod.core.feed.util.PlaybackSpeedUtils;
@@ -202,13 +200,15 @@ public class PlayerWidgetJobService extends SafeJobIntentService {
                 boolean showRewind = prefs.getBoolean(PlayerWidget.KEY_WIDGET_REWIND + id, false);
                 boolean showFastForward = prefs.getBoolean(PlayerWidget.KEY_WIDGET_FAST_FORWARD + id, false);
                 boolean showSkip = prefs.getBoolean(PlayerWidget.KEY_WIDGET_SKIP + id, false);
+                boolean showSpeed = prefs.getBoolean(PlayerWidget.KEY_WIDGET_SPEED + id, false);
 
-                if (showRewind || showSkip || showFastForward) {
+                if (showRewind || showSkip || showFastForward | showSpeed) {
                     views.setInt(R.id.extendedButtonsContainer, "setVisibility", View.VISIBLE);
                     views.setInt(R.id.butPlay, "setVisibility", View.GONE);
                     views.setInt(R.id.butRew, "setVisibility", showRewind ? View.VISIBLE : View.GONE);
                     views.setInt(R.id.butFastForward, "setVisibility", showFastForward ? View.VISIBLE : View.GONE);
                     views.setInt(R.id.butSkip, "setVisibility", showSkip ? View.VISIBLE : View.GONE);
+                    views.setInt(R.id.speedContainer, "setVisibility", showSkip ? View.VISIBLE : View.GONE);
                 }
 
                 int backgroundColor = prefs.getInt(PlayerWidget.KEY_WIDGET_COLOR + id, PlayerWidget.DEFAULT_COLOR);
@@ -220,6 +220,62 @@ public class PlayerWidgetJobService extends SafeJobIntentService {
             manager.updateAppWidget(playerWidget, views);
         }
     }
+
+/*
+    private void setupPlaybackSpeedButton() {
+        butPlaybackSpeed.setOnClickListener(v -> {
+            if (controller == null) {
+                return;
+            }
+            if (!controller.canSetPlaybackSpeed()) {
+                VariableSpeedDialog.showGetPluginDialog(getContext());
+                return;
+            }
+            List<Float> availableSpeeds = UserPreferences.getPlaybackSpeedArray();
+            float currentSpeed = controller.getCurrentPlaybackSpeedMultiplier();
+
+            int newSpeedIndex = 0;
+            while (newSpeedIndex < availableSpeeds.size()
+                    && availableSpeeds.get(newSpeedIndex) < currentSpeed + EPSILON) {
+                newSpeedIndex++;
+            }
+
+            float newSpeed;
+            if (availableSpeeds.size() == 0) {
+                newSpeed = 1.0f;
+            } else if (newSpeedIndex == availableSpeeds.size()) {
+                newSpeed = availableSpeeds.get(0);
+            } else {
+                newSpeed = availableSpeeds.get(newSpeedIndex);
+            }
+
+            controller.setPlaybackSpeed(newSpeed);
+            loadMediaInfo();
+        });
+        butPlaybackSpeed.setOnLongClickListener(v -> {
+            new VariableSpeedDialog().show(getChildFragmentManager(), null);
+            return true;
+        });
+        butPlaybackSpeed.setVisibility(View.VISIBLE);
+        txtvPlaybackSpeed.setVisibility(View.VISIBLE);
+    }
+
+    protected void updatePlaybackSpeedButton(Playable media) {
+        if (butPlaybackSpeed == null || controller == null) {
+            return;
+        }
+        float speed = 1.0f;
+        if (controller.canSetPlaybackSpeed()) {
+            speed = PlaybackSpeedUtils.getCurrentPlaybackSpeed(media);
+        }
+        String speedStr = new DecimalFormat("0.00").format(speed);
+        txtvPlaybackSpeed.setText(speedStr);
+        butPlaybackSpeed.setSpeed(speed);
+        butPlaybackSpeed.setAlpha(controller.canSetPlaybackSpeed() ? 1.0f : 0.5f);
+        butPlaybackSpeed.setVisibility(View.VISIBLE);
+        txtvPlaybackSpeed.setVisibility(View.VISIBLE);
+    }
+*/
 
     /**
      * Creates an intent which fakes a mediabutton press

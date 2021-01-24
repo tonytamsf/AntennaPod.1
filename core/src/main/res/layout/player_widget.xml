@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -23,7 +24,7 @@
             android:background="?android:attr/selectableItemBackground"
             android:scaleType="fitCenter"
             android:padding="8dp"
-            android:src="@drawable/ic_av_play_white_24dp" />
+            app:srcCompat="@drawable/ic_av_play_white_24dp" />
 
         <LinearLayout
             android:id="@+id/layout_left"
@@ -89,6 +90,30 @@
                     android:orientation="horizontal"
                     android:visibility="gone">
 
+                    <LinearLayout
+                        android:id="@+id/speedContainer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical">
+                        <ImageButton
+                            android:id="@+id/butSpeed"
+                            android:layout_width="28dp"
+                            android:layout_height="28dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:contentDescription="@string/playback_speed"
+                            tools:srcCompat="@drawable/ic_playback_speed_white"/>
+
+                        <TextView
+                            android:id="@+id/txtvSpeed"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:text="1.00"
+                            android:textSize="12sp"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:clickable="false"/>
+                    </LinearLayout>
+
                     <ImageButton
                         android:id="@+id/butRew"
                         android:layout_width="36dp"
@@ -98,7 +123,7 @@
                         android:layout_marginRight="2dp"
                         android:layout_marginEnd="2dp"
                         android:scaleType="fitXY"
-                        android:src="@drawable/ic_av_fast_rewind_white_48dp"/>
+                        app:srcCompat="@drawable/ic_av_fast_rewind_white_48dp"/>
 
                     <ImageButton
                         android:id="@+id/butPlayExtended"
@@ -109,7 +134,7 @@
                         android:layout_marginRight="2dp"
                         android:layout_marginEnd="2dp"
                         android:scaleType="fitXY"
-                        android:src="@drawable/ic_av_play_white_48dp"/>
+                        app:srcCompat="@drawable/ic_av_play_white_48dp"/>
 
                     <ImageButton
                         android:id="@+id/butFastForward"
@@ -120,7 +145,7 @@
                         android:layout_marginRight="2dp"
                         android:layout_marginEnd="2dp"
                         android:scaleType="fitXY"
-                        android:src="@drawable/ic_av_fast_forward_white_48dp"/>
+                        app:srcCompat="@drawable/ic_av_fast_forward_white_48dp"/>
 
                     <ImageButton
                         android:id="@+id/butSkip"
@@ -131,7 +156,7 @@
                         android:layout_marginRight="2dp"
                         android:layout_marginEnd="2dp"
                         android:scaleType="fitXY"
-                        android:src="@drawable/ic_av_skip_white_24dp"/>
+                        app:srcCompat="@drawable/ic_av_skip_white_24dp"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>

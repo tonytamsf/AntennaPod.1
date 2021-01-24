@@ -4,7 +4,7 @@
                     android:initialLayout="@layout/player_widget"
                     android:updatePeriodMillis="86400000"
                     android:previewImage="@drawable/ic_widget_preview"
-                    android:minHeight="40dp"
+                    android:minHeight="80dp"
                     android:minWidth="250dp"
                     android:minResizeWidth="40dp"
                     android:configure="de.danoeh.antennapod.activity.WidgetConfigActivity">

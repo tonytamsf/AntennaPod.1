@@ -93,6 +93,13 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Skip" />
+
+            <CheckBox
+                android:id="@+id/ckSpeed"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Skip" />
         </LinearLayout>
         <Button
             android:id="@+id/butConfirm"

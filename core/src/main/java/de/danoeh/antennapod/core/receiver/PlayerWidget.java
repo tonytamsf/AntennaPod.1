@@ -6,10 +6,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.util.Log;
-
+import de.danoeh.antennapod.service.PlayerWidgetJobService;
 import java.util.Arrays;
-
-import de.danoeh.antennapod.core.service.PlayerWidgetJobService;
 
 public class PlayerWidget extends AppWidgetProvider {
     private static final String TAG = "PlayerWidget";
@@ -17,6 +15,7 @@ public class PlayerWidget extends AppWidgetProvider {
     private static final String KEY_ENABLED = "WidgetEnabled";
     public static final String KEY_WIDGET_COLOR = "widget_color";
     public static final String KEY_WIDGET_SKIP = "widget_skip";
+    public static final String KEY_WIDGET_SPEED = "widget_speed";
     public static final String KEY_WIDGET_FAST_FORWARD = "widget_fast_forward";
     public static final String KEY_WIDGET_REWIND = "widget_rewind";
     public static final int DEFAULT_COLOR = 0x00262C31;
@@ -58,6 +57,7 @@ public class PlayerWidget extends AppWidgetProvider {
             prefs.edit().remove(KEY_WIDGET_REWIND + appWidgetId).apply();
             prefs.edit().remove(KEY_WIDGET_FAST_FORWARD + appWidgetId).apply();
             prefs.edit().remove(KEY_WIDGET_SKIP + appWidgetId).apply();
+            prefs.edit().remove(KEY_WIDGET_SPEED + appWidgetId).apply();
         }
         super.onDeleted(context, appWidgetIds);
     }
