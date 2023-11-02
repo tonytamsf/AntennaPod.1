@@ -23,7 +23,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.internal.StringUtil;
+
+import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAccessor;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -44,19 +52,19 @@ public class PodcastIndexTranscriptParser {
             TranscriptSegment transcriptSegment;
             List<String> lines = Arrays.asList(str.split("\n"));
             Iterator<String> iter = lines.iterator();
+            String speaker = "";
+            String body = "";
 
             // TT TODO Parse speaker
             String line;
+            String segmentBody = "";
             while (true) {
                 try {
                     line = iter.next();
-                    String body = null;
-                    String speaker = "";
                     long startTimecode = 0;
                     long endTimecode = 0;
                     long span = 1000L;
                     long duration = 0L;
-                    String segmentBody = "";
 
                     if (line.isEmpty()) {
                         continue;
@@ -73,13 +81,19 @@ public class PodcastIndexTranscriptParser {
                         duration += endTimecode - startTimecode;
                         line = iter.next();
                         do {
-                            body = line.strip();
+                            body = body.concat(" " + line.strip());
                             line = iter.next();
-                        } while (line.length() > 0);
+                        } while (!StringUtil.isBlank(line));
+                    }
+
+                    if (body.contains(":")) {
+                        String [] parts = body.split(":");
+                        speaker = parts[0];
+                        body = parts[1].strip();
                     }
                     if (!StringUtil.isBlank(body)) {
                         Log.d(TAG, Long.toString(startTimecode) + " " + body);
-                        segmentBody += body;
+                        segmentBody += " " + body;
                         if (duration >= span) {
                             transcript.addSegment(new TranscriptSegment(startTimecode,
                                     endTimecode,
@@ -88,7 +102,8 @@ public class PodcastIndexTranscriptParser {
                             duration = 0L;
                             segmentBody = "";
                         }
-                        transcript.addSegment(new TranscriptSegment(startTimecode, endTimecode, body, speaker));
+                        body = "";
+                        // transcript.addSegment(new TranscriptSegment(startTimecode, endTimecode, body, speaker));
                     }
                 } catch (NoSuchElementException e) {
                     return transcript;
@@ -110,34 +125,39 @@ public class PodcastIndexTranscriptParser {
 
     public static class PodcastIndexTranscriptJsonParser {
         static String TAG = "PodcastIndexTranscriptJsonParser";
-        static Transcript transcript = new Transcript();
 
         public static Transcript parse(String jsonStr) {
             try {
+                Transcript transcript = new Transcript();
                 transcript.setRawString(jsonStr);
 
                 JSONObject obj = new JSONObject(jsonStr);
                 JSONArray objSegments = obj.getJSONArray("segments");
-                // TODO Parse speaker
-                String speaker = "";
                 long span = 1000L;
                 long duration = 0L;
                 String segmentBody = "";
+                long segmentStartTime = -1;
 
                 for (int i = 0; i < objSegments.length(); i++) {
                     JSONObject jsonObject = objSegments.getJSONObject(i);
                     long startTime = Double.valueOf(jsonObject.optDouble("startTime", 0) * 1000L).longValue();
+                    if (segmentStartTime == -1) {
+                       segmentStartTime = startTime;
+                    }
                     long endTime = Double.valueOf(jsonObject.optDouble("endTime", startTime) * 1000L).longValue();
                     duration += endTime - startTime;
+
+                    String speaker = jsonObject.optString("speaker");
 
                     String body = jsonObject.optString("body");
                     segmentBody += body + " ";
 
                     if (duration >= span) {
-                        transcript.addSegment(new TranscriptSegment(startTime, endTime, segmentBody, speaker));
+                        transcript.addSegment(new TranscriptSegment(segmentStartTime, endTime, segmentBody, speaker));
                         Log.d(TAG, "JSON " + segmentBody);
                         duration = 0L;
                         segmentBody = "";
+                        segmentStartTime = -1;
                     }
                 }
                 return transcript;
@@ -154,9 +174,15 @@ public class PodcastIndexTranscriptParser {
             return PodcastIndexTranscriptJsonParser.parse(str);
         }
 
-        if ("application/srt".equals(type)) {
+        if ("application/srt".equals(type) || "application/srr".equals(type) || "application/x-subrip".equals(type)) {
             return PodcastIndexTranscriptSrtParser.parse(str);
         }
         return null;
+    }
+
+    public static String secondsToTime(long msecs) {
+        int duration = Math.toIntExact(msecs / 1000L);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        return String.format("%d:%02d:%02d", duration / 3600, (duration % 3600) / 60, (duration % 60));
     }
 }
