@@ -40,6 +40,8 @@ import de.danoeh.antennapod.core.util.DateFormatter;
 import de.danoeh.antennapod.core.util.PodcastIndexTranscriptUtils;
 import de.danoeh.antennapod.core.util.playback.PlaybackController;
 import de.danoeh.antennapod.databinding.CoverFragmentBinding;
+import de.danoeh.antennapod.dialog.AllEpisodesFilterDialog;
+import de.danoeh.antennapod.dialog.EpisodeTranscriptDialog;
 import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.model.feed.Chapter;
 import de.danoeh.antennapod.model.feed.EmbeddedChapterImage;
@@ -47,6 +49,7 @@ import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.Transcript;
 import de.danoeh.antennapod.model.feed.TranscriptSegment;
 import de.danoeh.antennapod.model.playback.Playable;
+import de.danoeh.antennapod.net.discovery.CombinedSearcher;
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -349,15 +352,13 @@ public class CoverFragment extends Fragment {
     }
 
     void onTranscriptOverlay() {
-        // TT TODO
-        return;
+        EpisodeTranscriptDialog.newInstance().show(getChildFragmentManager(), "transcript");
     }
 
     void updateTranscript(Playable media, int pos) {
         if (! (media instanceof FeedMedia)) {
             return;
         }
-        // TT TODO - only get a snippet from previously saved transcript
         Transcript transcript = PodcastIndexTranscriptUtils.loadTranscript((FeedMedia) media);
         if (transcript == null) {
             return;
@@ -425,11 +426,14 @@ public class CoverFragment extends Fragment {
                         break;
                     }
 
-                    Log.d(TAG, "start seg " + seg.getStartTime()
-                            + " next seg " + nextSeg.getValue().getStartTime());
                     if (nextSeg != null && seg.getStartTime() == nextSeg.getValue().getStartTime()) {
                         break;
                     }
+                    if (nextSeg == null) {
+                        break;
+                    }
+                    Log.d(TAG, "start seg " + seg.getStartTime()
+                            + " next seg " + nextSeg.getValue().getStartTime());
                     Log.d(TAG, "sink combining " + seg.getWords() + " + " + nextSeg.getValue().getWords());
                     seg.setWords(StringUtils.stripToEmpty(seg.getWords().replaceAll(" +", " ") + " "
                             + StringUtils.stripToEmpty(
