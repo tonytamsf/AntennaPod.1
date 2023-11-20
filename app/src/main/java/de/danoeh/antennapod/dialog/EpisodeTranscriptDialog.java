@@ -1,5 +1,6 @@
 package de.danoeh.antennapod.dialog;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
@@ -11,12 +12,14 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearSmoothScroller;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.ViewGroup;
 import android.view.Window;
 
 import java.util.Iterator;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -31,15 +34,14 @@ import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.Transcript;
 import de.danoeh.antennapod.model.feed.TranscriptSegment;
 import de.danoeh.antennapod.model.playback.Playable;
-import io.reactivex.Maybe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 
 public class EpisodeTranscriptDialog extends DialogFragment {
     public static String TAG = "EpisodeTranscriptDialog";
     private PlaybackController controller;
     static private EpisodeTranscriptDialog dialog;
     ItemTranscriptRVAdapter adapter = null;
+    RecyclerView rv;
+    View currentView = null;
 
     Transcript transcript;
     SortedMap<Long, TranscriptSegment> map;
@@ -95,7 +97,7 @@ public class EpisodeTranscriptDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.episode_transcript_list, container, false);
-        RecyclerView rv = root.findViewById(R.id.transcript_recycler_view);
+        rv = root.findViewById(R.id.transcript_recycler_view);
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setRecycleChildrenOnDetach(true);
@@ -186,6 +188,41 @@ public class EpisodeTranscriptDialog extends DialogFragment {
         dialog.requestWindowFeature(Window.FEATURE_ACTION_BAR_OVERLAY | Window.FEATURE_LEFT_ICON);
         return dialog;
     }
+
+    @SuppressLint("ResourceAsColor")
+    public void scrollToPosition(long position) {
+        if (segmentsMap == null) {
+            return;
+        }
+        Map.Entry<Long, TranscriptSegment> entry = segmentsMap.floorEntry(position);
+        if (entry != null) {
+            Integer pos = adapter.positions.get(entry.getKey());
+            if (pos != null) {
+                Log.d(TAG, "Scrolling to position" + pos + " jump " + Long.toString(entry.getKey()));
+                LinearSmoothScroller smoothScroller=new LinearSmoothScroller(getActivity()){
+                    @Override
+                    protected int getVerticalSnapPreference() {
+                        return LinearSmoothScroller.SNAP_TO_START;
+                    }
+                };
+
+                smoothScroller.setTargetPosition(pos);  // pos on which item you want to scroll recycler view
+                rv.getLayoutManager().startSmoothScroll(smoothScroller);
+                rv.scrollTo(0, 0);
+
+                currentView = rv.getLayoutManager().findViewByPosition(pos);
+                rv.getLayoutManager().findViewByPosition(pos);
+                if (currentView != null) {
+                    currentView.setBackgroundColor(R.color.light_gray);
+                }
+            }
+        }
+    }
+
+    public void scrollToTop() {
+        rv.getLayoutManager().scrollToPosition(0);
+    }
+
 
     private void setupUi() {
     }
