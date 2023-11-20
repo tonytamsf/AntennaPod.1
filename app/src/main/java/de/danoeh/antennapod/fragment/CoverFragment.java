@@ -73,6 +73,7 @@ public class CoverFragment extends Fragment {
     private Disposable disposable;
     private int displayedChapterIndex = -1;
     private Playable media;
+    private EpisodeTranscriptDialog transcriptDialog;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -352,10 +353,14 @@ public class CoverFragment extends Fragment {
     }
 
     void onTranscriptOverlay() {
-        EpisodeTranscriptDialog.newInstance().show(getChildFragmentManager(), "transcript");
+        transcriptDialog = EpisodeTranscriptDialog.newInstance();
+        transcriptDialog.show(getChildFragmentManager(), "transcript");
     }
 
     void updateTranscript(Playable media, int pos) {
+        if (transcriptDialog != null) {
+            transcriptDialog.scrollToPosition(pos);
+        }
         if (! (media instanceof FeedMedia)) {
             return;
         }

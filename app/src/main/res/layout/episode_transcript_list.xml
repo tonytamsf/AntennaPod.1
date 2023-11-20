@@ -28,7 +28,9 @@
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:layout_below="@id/appbar"
+        >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/transcript_recycler_view"
