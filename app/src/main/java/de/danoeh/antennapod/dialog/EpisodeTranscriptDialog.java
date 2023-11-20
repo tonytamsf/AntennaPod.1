@@ -1,32 +1,49 @@
 package de.danoeh.antennapod.dialog;
 
-import android.app.Activity;
 import android.app.Dialog;
+import android.content.Context;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.ViewGroup;
 import android.view.Window;
-import android.widget.Button;
-import android.widget.CheckBox;
+
+import java.util.Iterator;
+import java.util.NoSuchElementException;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import de.danoeh.antennapod.ItemTranscriptRVAdapter;
 import de.danoeh.antennapod.R;
-import de.danoeh.antennapod.storage.preferences.UserPreferences;
+import de.danoeh.antennapod.core.storage.DBReader;
+import de.danoeh.antennapod.core.util.PodcastIndexTranscriptUtils;
+import de.danoeh.antennapod.core.util.gui.ShownotesCleaner;
 import de.danoeh.antennapod.core.util.playback.PlaybackController;
-import java.util.List;
+import de.danoeh.antennapod.model.feed.FeedMedia;
+import de.danoeh.antennapod.model.feed.Transcript;
+import de.danoeh.antennapod.model.feed.TranscriptSegment;
+import de.danoeh.antennapod.model.playback.Playable;
+import io.reactivex.Maybe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 public class EpisodeTranscriptDialog extends DialogFragment {
+    public static String TAG = "EpisodeTranscriptDialog";
     private PlaybackController controller;
     static private EpisodeTranscriptDialog dialog;
+    ItemTranscriptRVAdapter adapter = null;
+
+    Transcript transcript;
+    SortedMap<Long, TranscriptSegment> map;
+    TreeMap<Long, TranscriptSegment> segmentsMap;
 
     public static EpisodeTranscriptDialog newInstance() {
         Bundle arguments = new Bundle();
@@ -78,9 +95,89 @@ public class EpisodeTranscriptDialog extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.episode_transcript_list, container, false);
-        View rv = root.findViewById(R.id.transcript_recycler_view);
+        RecyclerView rv = root.findViewById(R.id.transcript_recycler_view);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
+        layoutManager.setRecycleChildrenOnDetach(true);
+        rv.setLayoutManager(layoutManager);
+
+        controller = new PlaybackController(getActivity()) {
+            @Override
+            public void loadMediaInfo() {
+                load();
+            }
+        };
+        controller.init();
+
+        if (rv instanceof RecyclerView) {
+            Context context = rv.getContext();
+            RecyclerView recyclerView = (RecyclerView) rv;
+            recyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+            Playable media = controller.getMedia();
+            if (media != null && media instanceof FeedMedia) {
+                FeedMedia feedMedia = ((FeedMedia) media);
+                if (feedMedia.getItem() == null) {
+                    feedMedia.setItem(DBReader.getFeedItem(feedMedia.getItemId()));
+                }
+
+                transcript = PodcastIndexTranscriptUtils.loadTranscript(feedMedia);
+
+                adapter = new ItemTranscriptRVAdapter(transcript, context);
+                recyclerView.setAdapter(adapter);
+            }
+        }
 
         return root;
+    }
+    private void load() {
+        Log.d(TAG, "load()");
+        /*
+        if (webViewLoader != null) {
+            webViewLoader.dispose();
+        }
+        */
+        Context context = getContext();
+        if (context == null) {
+            return;
+        }
+        Playable media = controller.getMedia();
+            if (media == null) {
+                return;
+            }
+            String transcriptStr = "";
+            if (media instanceof FeedMedia) {
+                FeedMedia feedMedia = ((FeedMedia) media);
+                if (feedMedia.getItem() == null) {
+                    feedMedia.setItem(DBReader.getFeedItem(feedMedia.getItemId()));
+                }
+
+                transcript = PodcastIndexTranscriptUtils.loadTranscript(feedMedia);
+                adapter = new ItemTranscriptRVAdapter(transcript, context);
+
+                if (transcript != null) {
+                    adapter.setTranscript(transcript);
+                    adapter.notifyDataSetChanged();
+
+                    segmentsMap = transcript.getSegmentsMap();
+                    map = segmentsMap.tailMap(0L, true);
+                    Iterator<Long> iter = map.keySet().iterator();
+                    try {
+                        while (true) {
+                            Long l = iter.next();
+                            long start = segmentsMap.get(l).getStartTime();
+                            transcriptStr = transcriptStr.concat(
+                                            "<a id=\"seg" + start + "\">"
+                                                    + segmentsMap.get(l).getWords()
+                                                    + "</a> "
+                            );
+                        }
+                    } catch (NoSuchElementException e) {
+                        // DONE
+                    }
+                    Log.d(TAG, "FULL TRANSCRIPT" + transcriptStr);
+                }
+            }
     }
 
     @Override

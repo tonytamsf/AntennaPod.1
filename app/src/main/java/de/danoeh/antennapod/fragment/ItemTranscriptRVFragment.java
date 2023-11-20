@@ -9,7 +9,6 @@ import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -32,9 +31,6 @@ import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.Transcript;
 import de.danoeh.antennapod.model.feed.TranscriptSegment;
 import de.danoeh.antennapod.model.playback.Playable;
-import de.danoeh.antennapod.placeholder.PlaceholderContent;
-import de.danoeh.antennapod.view.NestedScrollableHost;
-import de.danoeh.antennapod.view.ShownotesWebView;
 import io.reactivex.Maybe;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -91,7 +87,7 @@ public class ItemTranscriptRVFragment extends Fragment {
 
                 transcript = PodcastIndexTranscriptUtils.loadTranscript(feedMedia);
 
-                adapter = new ItemTranscriptRVAdapter(transcript);
+                adapter = new ItemTranscriptRVAdapter(transcript, context);
                 recyclerView.setAdapter(adapter);
             }
         }

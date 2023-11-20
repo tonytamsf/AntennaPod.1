@@ -8,6 +8,10 @@ public class Transcript {
     private TreeMap<Long, TranscriptSegment> segmentsMap = new TreeMap<>();
     private String rawString;
 
+    public TreeMap<Long, TranscriptSegment> getSegmentsMap () {
+        return segmentsMap;
+    }
+
     public void addSegment(TranscriptSegment segment) {
         segmentsMap.put(segment.getStartTime(), segment);
     }

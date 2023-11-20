@@ -41,6 +41,7 @@
         android:paddingTop="@dimen/list_vertical_padding"
         android:stretchMode="columnWidth"
         android:verticalSpacing="8dp"
+        tools:context="de.danoeh.antennapod.fragment.EpisodeTranscriptDialog"
         tools:listitem="@layout/episode_transcript_listitem" />
     </androidx.appcompat.widget.LinearLayoutCompat>
 

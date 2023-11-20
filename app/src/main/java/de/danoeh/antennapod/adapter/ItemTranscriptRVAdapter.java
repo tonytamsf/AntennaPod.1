@@ -1,7 +1,9 @@
 package de.danoeh.antennapod;
 
+import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,19 +12,10 @@ import android.widget.TextView;
 
 import org.jsoup.internal.StringUtil;
 
-import de.danoeh.antennapod.core.util.PodcastIndexTranscriptUtils;
 import de.danoeh.antennapod.model.feed.Transcript;
 import de.danoeh.antennapod.model.feed.TranscriptSegment;
-import de.danoeh.antennapod.parser.feed.PodcastIndexTranscriptParser;
-import de.danoeh.antennapod.placeholder.PlaceholderContent.PlaceholderItem;
-import de.danoeh.antennapod.databinding.FragmentItemTranscriptRvBinding;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -36,10 +29,13 @@ public class ItemTranscriptRVAdapter extends RecyclerView.Adapter<ItemTranscript
     public String TAG = "ItemTranscriptRVAdapter";
     public Hashtable<Long, Integer> positions;
     public Hashtable<Integer, TranscriptSegment> snippets;
+    private final Context context;
+
 
     private Transcript transcript;
 
-    public ItemTranscriptRVAdapter(Transcript t) {
+    public ItemTranscriptRVAdapter(Transcript t, Context context) {
+        this.context = context;
         positions = new Hashtable<Long, Integer>();
         snippets = new Hashtable<Integer, TranscriptSegment>();
         setTranscript(t);
@@ -47,9 +43,8 @@ public class ItemTranscriptRVAdapter extends RecyclerView.Adapter<ItemTranscript
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-
-        return new ViewHolder(FragmentItemTranscriptRvBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false));
-
+        LayoutInflater inflater = LayoutInflater.from(context);
+        return new ViewHolder(inflater.inflate(R.layout.episode_transcript_listitem, parent, false));
     }
 
     public void setTranscript(Transcript t) {
@@ -79,11 +74,11 @@ public class ItemTranscriptRVAdapter extends RecyclerView.Adapter<ItemTranscript
 
         Log.d(TAG, "onBindViewHolder position " + position + " RV pos " + k);
         holder.mItem = seg;
-        holder.mIdView.setText(PodcastIndexTranscriptParser.secondsToTime(k));
+        //holder.mIdView.setText(PodcastIndexTranscriptParser.secondsToTime(k));
         if (! StringUtil.isBlank(seg.getSpeaker())) {
-            holder.mContentView.setText(seg.getSpeaker() + " : " + seg.getWords());
+            holder.mTitleView.setText(seg.getSpeaker() + " : " + seg.getWords());
         } else {
-            holder.mContentView.setText(seg.getWords());
+            holder.mTitleView.setText(seg.getWords());
         }
     }
 
@@ -96,20 +91,26 @@ public class ItemTranscriptRVAdapter extends RecyclerView.Adapter<ItemTranscript
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {
-        public final TextView mIdView;
-        public final TextView mContentView;
+        public final TextView mTitleView;
+        public final TextView mAuthorView;
         public TranscriptSegment mItem;
 
-        public ViewHolder(FragmentItemTranscriptRvBinding binding) {
-            super(binding.getRoot());
-            mIdView = binding.itemNumber;
-            mContentView = binding.content;
-            //mIdView.setVisibility(View.GONE);
+        public ViewHolder(@NonNull View itemView) {
+            super(itemView);
+            mTitleView = itemView.findViewById(R.id.txtvTitle);
+            mAuthorView = itemView.findViewById(R.id.txtvAuthor);
         }
 
+        /*        public ViewHolder(FragmentItemTranscriptRvBinding binding) {
+                    super(binding.getRoot());
+                    mIdView = binding.itemNumber;
+                    mContentView = binding.content;
+                    //mIdView.setVisibility(View.GONE);
+                }
+        */
         @Override
         public String toString() {
-            return super.toString() + " '" + mContentView.getText() + "'";
+            return super.toString() + " '" + mTitleView.getText() + "'";
         }
     }
 }
