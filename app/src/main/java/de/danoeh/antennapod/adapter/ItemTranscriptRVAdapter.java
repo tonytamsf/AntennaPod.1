@@ -8,6 +8,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import org.jsoup.internal.StringUtil;
@@ -76,10 +77,10 @@ public class ItemTranscriptRVAdapter extends RecyclerView.Adapter<ItemTranscript
         holder.mItem = seg;
         //holder.mIdView.setText(PodcastIndexTranscriptParser.secondsToTime(k));
         if (! StringUtil.isBlank(seg.getSpeaker())) {
-            holder.mTitleView.setText(seg.getSpeaker() + " : " + seg.getWords());
-        } else {
-            holder.mTitleView.setText(seg.getWords());
+            holder.mAuthorView.setText(seg.getSpeaker());
         }
+        holder.mTitleView.setText(seg.getWords());
+        holder.mCoverView.setVisibility(View.GONE);
     }
 
     @Override
@@ -93,12 +94,14 @@ public class ItemTranscriptRVAdapter extends RecyclerView.Adapter<ItemTranscript
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final TextView mTitleView;
         public final TextView mAuthorView;
+        public final ImageView mCoverView;
         public TranscriptSegment mItem;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
             mTitleView = itemView.findViewById(R.id.txtvTitle);
             mAuthorView = itemView.findViewById(R.id.txtvAuthor);
+            mCoverView = itemView.findViewById(R.id.imgvCover);
         }
 
         /*        public ViewHolder(FragmentItemTranscriptRvBinding binding) {

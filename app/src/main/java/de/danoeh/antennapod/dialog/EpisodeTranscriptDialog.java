@@ -191,6 +191,9 @@ public class EpisodeTranscriptDialog extends DialogFragment {
 
     @SuppressLint("ResourceAsColor")
     public void scrollToPosition(long position) {
+        if (getActivity() == null) {
+            return;
+        }
         if (segmentsMap == null) {
             return;
         }
