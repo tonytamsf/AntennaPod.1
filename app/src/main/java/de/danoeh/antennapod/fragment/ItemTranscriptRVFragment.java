@@ -21,7 +21,7 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import de.danoeh.antennapod.ItemTranscriptRVAdapter;
+import de.danoeh.antennapod.adapter.ItemTranscriptRVAdapter;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.util.PodcastIndexTranscriptUtils;
@@ -138,8 +138,8 @@ public class ItemTranscriptRVFragment extends Fragment {
 
                         transcript = PodcastIndexTranscriptUtils.loadTranscript(feedMedia);
                         if (transcript != null) {
-                            adapter.setTranscript(transcript);
                             adapter.notifyDataSetChanged();
+
 
                             segmentsMap = transcript.getSegmentsMap();
                             map = segmentsMap.tailMap(0L, true);

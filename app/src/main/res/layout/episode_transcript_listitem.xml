@@ -31,14 +31,16 @@
         android:layout_toEndOf="@id/imgvCover"
         android:layout_centerVertical="true"
         android:orientation="vertical"
+        android:id="@+id/measureLayout"
         android:layout_marginLeft="16dp"
         android:layout_marginStart="16dp">
 
         <TextView
             android:id="@+id/txtvTitle"
+            style="@style/AntennaPod.TextView.ListItemPrimaryTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            style="@style/AntennaPod.TextView.ListItemPrimaryTitle"
+            android:ellipsize="end"
             tools:background="@android:color/holo_green_dark"
             tools:text="Podcast title" />
 
@@ -48,7 +50,7 @@
             android:layout_height="wrap_content"
             android:textSize="14sp"
             android:textColor="?android:attr/textColorSecondary"
-            android:ellipsize="middle"
+            android:ellipsize="end"
             android:maxLines="2"
             style="android:style/TextAppearance.Small"
             tools:text="author"

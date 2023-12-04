@@ -3,6 +3,9 @@ package de.danoeh.antennapod.dialog;
 import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,6 +20,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.view.ViewGroup;
 import android.view.Window;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -24,7 +29,7 @@ import java.util.NoSuchElementException;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
-import de.danoeh.antennapod.ItemTranscriptRVAdapter;
+import de.danoeh.antennapod.adapter.ItemTranscriptRVAdapter;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.core.storage.DBReader;
 import de.danoeh.antennapod.core.util.PodcastIndexTranscriptUtils;
@@ -42,6 +47,9 @@ public class EpisodeTranscriptDialog extends DialogFragment {
     ItemTranscriptRVAdapter adapter = null;
     RecyclerView rv;
     View currentView = null;
+    View prevView = null;
+    TextView measureListItem;
+    int prevColor = -1;
 
     Transcript transcript;
     SortedMap<Long, TranscriptSegment> map;
@@ -102,11 +110,13 @@ public class EpisodeTranscriptDialog extends DialogFragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
         layoutManager.setRecycleChildrenOnDetach(true);
         rv.setLayoutManager(layoutManager);
+        RelativeLayout relativeLayout = root.findViewById(R.id.measure_listitem);
+        measureListItem = relativeLayout.findViewById(R.id.txtvTitle);
 
         controller = new PlaybackController(getActivity()) {
             @Override
             public void loadMediaInfo() {
-                load();
+                load(measureListItem);
             }
         };
         controller.init();
@@ -132,7 +142,7 @@ public class EpisodeTranscriptDialog extends DialogFragment {
 
         return root;
     }
-    private void load() {
+    private void load(TextView v) {
         Log.d(TAG, "load()");
         /*
         if (webViewLoader != null) {
@@ -158,7 +168,7 @@ public class EpisodeTranscriptDialog extends DialogFragment {
                 adapter = new ItemTranscriptRVAdapter(transcript, context);
 
                 if (transcript != null) {
-                    adapter.setTranscript(transcript);
+                    //adapter.setTranscript(transcript, v);
                     adapter.notifyDataSetChanged();
 
                     segmentsMap = transcript.getSegmentsMap();
@@ -213,10 +223,16 @@ public class EpisodeTranscriptDialog extends DialogFragment {
                 rv.getLayoutManager().startSmoothScroll(smoothScroller);
                 rv.scrollTo(0, 0);
 
+                prevView = currentView;
                 currentView = rv.getLayoutManager().findViewByPosition(pos);
-                rv.getLayoutManager().findViewByPosition(pos);
                 if (currentView != null) {
+                    Drawable background = currentView.getBackground();
+                    if (prevColor == -1 && background instanceof ColorDrawable)
+                        prevColor = ((ColorDrawable) background).getColor();
                     currentView.setBackgroundColor(R.color.light_gray);
+                    if (prevView != null && prevView != currentView) {
+                       prevView.setBackgroundColor(prevColor);
+                    }
                 }
             }
         }
@@ -228,6 +244,7 @@ public class EpisodeTranscriptDialog extends DialogFragment {
 
 
     private void setupUi() {
+        adapter.setTranscript(transcript, measureListItem);
     }
 
     private void setupAudioTracks() {
