@@ -48,7 +48,6 @@ public class FeedItem extends FeedComponent implements Serializable {
     private String podcastIndexChapterUrl;
     private String podcastIndexTranscriptUrl;
     private String podcastIndexTranscriptType;
-    private boolean hasTranscript;
     private String podcastIndexTranscriptText;
     private Transcript transcript;
 
@@ -485,7 +484,7 @@ public class FeedItem extends FeedComponent implements Serializable {
             case "application/srr":
             case "application/srt":
             case "application/x-subrip":
-                if (podcastIndexTranscriptUrl == null || ! podcastIndexTranscriptType.equals(jsonType)) {
+                if (podcastIndexTranscriptUrl == null || !podcastIndexTranscriptType.equals(jsonType)) {
                     podcastIndexTranscriptUrl = url;
                     podcastIndexTranscriptType = canonicalSrr;
                 }
@@ -501,16 +500,10 @@ public class FeedItem extends FeedComponent implements Serializable {
     }
 
     public String setPodcastIndexTranscriptText(String str) {
-        hasTranscript = true;
         return podcastIndexTranscriptText = str;
     }
 
-    public boolean hasTranscript() {
-        return hasTranscript;
-    }
-
     public void setTranscript(Transcript t) {
-        hasTranscript = true;
         transcript = t;
     }
 
