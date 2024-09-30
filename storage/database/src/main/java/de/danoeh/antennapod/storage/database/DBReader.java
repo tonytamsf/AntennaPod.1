@@ -22,6 +22,7 @@ import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.FeedOrder;
 import de.danoeh.antennapod.model.feed.FeedPreferences;
+import de.danoeh.antennapod.model.feed.Note;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.model.feed.SubscriptionsFilter;
 import de.danoeh.antennapod.model.download.DownloadResult;
@@ -788,5 +789,20 @@ public final class DBReader {
         } finally {
             adapter.close();
         }
+    }
+    public static Note noteFromCursor(Cursor cursor) {
+        int indexId = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_ID);
+        int indexNotes = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_NOTES);
+        int indexFeedTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_TITLE);
+        int indexFeedItemTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_ITEM_TITLE);
+
+        long id = cursor.getInt(indexId);
+        String notes = cursor.getString(indexNotes);
+        String feedTitle = cursor.getString(indexFeedTitle);
+        String feedItemTitle = cursor.getString(indexFeedItemTitle);
+
+        Note note = new Note(id, notes, feedTitle, feedItemTitle);
+        Log.d(TAG, "fromCursor: " + note);
+        return note;
     }
 }

@@ -36,6 +36,7 @@ import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.FeedPreferences;
 import de.danoeh.antennapod.model.download.DownloadResult;
+import de.danoeh.antennapod.model.feed.Note;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.storage.database.mapper.FeedItemFilterQuery;
 import de.danoeh.antennapod.storage.database.mapper.FeedItemSortQuery;
@@ -125,6 +126,11 @@ public class PodDBAdapter {
     public static final String KEY_PODCASTINDEX_TRANSCRIPT_URL = "podcastindex_transcript_url";
     public static final String KEY_PODCASTINDEX_TRANSCRIPT_TYPE = "podcastindex_transcript_type";
 
+    public static final String KEY_NOTES = "notes";
+    //store titles so we can display them in the UI in the Notes screen
+    public static final String KEY_FEED_TITLE = "feed_title";
+    public static final String KEY_FEED_ITEM_TITLE = "feed_item_title";
+
     // Table names
     public static final String TABLE_NAME_FEEDS = "Feeds";
     public static final String TABLE_NAME_FEED_ITEMS = "FeedItems";
@@ -134,6 +140,7 @@ public class PodDBAdapter {
     public static final String TABLE_NAME_QUEUE = "Queue";
     public static final String TABLE_NAME_SIMPLECHAPTERS = "SimpleChapters";
     public static final String TABLE_NAME_FAVORITES = "Favorites";
+    public static final String TABLE_NAME_NOTES = "Notes";
 
     // SQL Statements for creating new tables
     private static final String TABLE_PRIMARY_KEY = KEY_ID
@@ -246,6 +253,11 @@ public class PodDBAdapter {
             + TABLE_NAME_FAVORITES + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_FEEDITEM + " INTEGER," + KEY_FEED + " INTEGER)";
 
+    static final String CREATE_TABLE_NOTES = "CREATE TABLE "
+            + TABLE_NAME_NOTES + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
+            + KEY_FEEDITEM + " INTEGER," + KEY_FEED + " INTEGER," + KEY_NOTES + " TEXT," + KEY_FEED_TITLE + " TEXT,"
+            + KEY_FEED_ITEM_TITLE + " TEXT)";
+
     /**
      * All the tables in the database
      */
@@ -256,7 +268,8 @@ public class PodDBAdapter {
             TABLE_NAME_DOWNLOAD_LOG,
             TABLE_NAME_QUEUE,
             TABLE_NAME_SIMPLECHAPTERS,
-            TABLE_NAME_FAVORITES
+            TABLE_NAME_FAVORITES,
+            TABLE_NAME_NOTES
     };
 
     public static final String SELECT_KEY_ITEM_ID = "item_id";
@@ -1457,6 +1470,61 @@ public class PodDBAdapter {
 
     /**
      * Insert raw data to the database.
+     * Select number of items, new items, the date of the latest episode and the number of episodes in progress. The result
+     * is sorted by the title of the feed.
+     */
+    private static final String FEED_STATISTICS_QUERY = "SELECT Feeds.id, num_items, new_items, latest_episode, in_progress FROM " +
+            " Feeds LEFT JOIN " +
+            "(SELECT feed,count(*) AS num_items," +
+            " COUNT(CASE WHEN read=0 THEN 1 END) AS new_items," +
+            " MAX(pubDate) AS latest_episode," +
+            " COUNT(CASE WHEN position>0 THEN 1 END) AS in_progress," +
+            " COUNT(CASE WHEN downloaded=1 THEN 1 END) AS episodes_downloaded " +
+            " FROM FeedItems LEFT JOIN FeedMedia ON FeedItems.id=FeedMedia.feeditem GROUP BY FeedItems.feed)" +
+            " ON Feeds.id = feed ORDER BY Feeds.title COLLATE NOCASE ASC;";
+
+    public Cursor getFeedStatisticsCursor() {
+        return db.rawQuery(FEED_STATISTICS_QUERY, null);
+    }
+
+    /**
+     * Inserts or updates a note for an episode
+     *
+     * @return the id of the entry
+     */
+    public long setNote(FeedItem item) {
+        ContentValues values = new ContentValues();
+        values.put(KEY_FEEDITEM, item.getId());
+        values.put(KEY_FEED, item.getFeedId());
+        Note note = item.getNote();
+        values.put(KEY_NOTES, note.getNotes());
+        values.put(KEY_FEED_TITLE, item.getFeed().getFeedTitle());
+        values.put(KEY_FEED_ITEM_TITLE, item.getTitle());
+        if (note.getNoteId() == 0) {
+            long noteId = db.insert(TABLE_NAME_NOTES, null, values);
+            note.setNoteId(noteId);
+            Log.d(TAG, "setNote: inserted new note with id: " + noteId);
+        } else {
+            db.update(TABLE_NAME_NOTES, values, KEY_ID + "=?",
+                    new String[]{String.valueOf(note.getNoteId())});
+            Log.d(TAG, "setNote: updated existing note " + note.getNotes());
+        }
+        return note.getNoteId();
+    }
+
+    public Cursor getNote(FeedItem item) {
+        String query = String.format(Locale.US, "SELECT * from %s WHERE %s=%d",
+                TABLE_NAME_NOTES, KEY_FEEDITEM, item.getId());
+        return db.rawQuery(query, null);
+    }
+
+    public Cursor getAllNotes() {
+        String query = String.format(Locale.US, "SELECT * from %s ORDER BY %s DESC", TABLE_NAME_NOTES, KEY_ID);
+        return db.rawQuery(query, null);
+    }
+
+    /**
+     * Insert raw data to the database.     *
      * Call method only for unit tests.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
@@ -1510,6 +1578,7 @@ public class PodDBAdapter {
             db.execSQL(CREATE_TABLE_QUEUE);
             db.execSQL(CREATE_TABLE_SIMPLECHAPTERS);
             db.execSQL(CREATE_TABLE_FAVORITES);
+            db.execSQL(CREATE_TABLE_NOTES);
 
             db.execSQL(CREATE_INDEX_FEEDITEMS_FEED);
             db.execSQL(CREATE_INDEX_FEEDITEMS_PUBDATE);

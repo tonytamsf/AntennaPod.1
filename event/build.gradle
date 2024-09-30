@@ -9,6 +9,8 @@ android {
 
 dependencies {
     implementation project(':model')
+    implementation "org.apache.commons:commons-lang3:$commonslangVersion"
+
     implementation "androidx.core:core:$coreVersion"
 
     annotationProcessor "androidx.annotation:annotation:$annotationVersion"

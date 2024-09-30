@@ -58,10 +58,11 @@ import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.importexport.AutomaticDatabaseExportWorker;
 import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.TransitionEffect;
+import de.danoeh.antennapod.ui.common.ThemeUtils;
+import de.danoeh.antennapod.fragment.NotesListFragment;
 import de.danoeh.antennapod.ui.appstartintent.MainActivityStarter;
 import de.danoeh.antennapod.ui.appstartintent.MediaButtonStarter;
 import de.danoeh.antennapod.ui.common.ThemeSwitcher;
-import de.danoeh.antennapod.ui.common.ThemeUtils;
 import de.danoeh.antennapod.ui.discovery.DiscoveryFragment;
 import de.danoeh.antennapod.ui.screen.AddFeedFragment;
 import de.danoeh.antennapod.ui.screen.AllEpisodesFragment;
@@ -426,6 +427,8 @@ public class MainActivity extends CastEnabledActivity {
                 break;
             case DiscoveryFragment.TAG:
                 fragment = new DiscoveryFragment();
+            case NotesListFragment.TAG:
+                fragment = new NotesListFragment();
                 break;
             default:
                 // default to home screen

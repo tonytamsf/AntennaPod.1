@@ -9,6 +9,7 @@ import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.storage.database.PodDBAdapter;
+import androidx.core.util.Consumer;
 
 import static org.junit.Assert.assertTrue;
 
@@ -71,4 +72,15 @@ abstract class DbTestUtils {
 
         return feeds;
     }
+
+    public static void withPodDB(Consumer<PodDBAdapter> action) {
+        PodDBAdapter adapter = PodDBAdapter.getInstance();
+        try {
+            adapter.open();
+            action.accept(adapter);
+        } finally {
+            adapter.close();
+        }
+    }
+
 }

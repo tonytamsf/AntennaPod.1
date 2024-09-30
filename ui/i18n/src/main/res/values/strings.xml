@@ -865,4 +865,12 @@
     <string name="shortcut_subscription_label">Subscription shortcut</string>
     <string name="shortcut_select_subscription">Select subscription</string>
     <string name="add_shortcut">Add shortcut</string>
+    <!-- Notes -->
+    <string name="add_to_notes">Add to Notes</string>
+    <string name="notes_dialog_title">Notes for this episode</string>
+    <string name="dialog_save">Save</string>
+    <string name="note_saved">Note saved</string>
+    <string name="notes">Notes</string>
+    <string name="no_notes_header">No notes saved</string>
+    <string name="no_notes">You can save some notes from the audio player view</string>
 </resources>

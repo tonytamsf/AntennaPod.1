@@ -2,106 +2,96 @@ package de.danoeh.antennapod.ui.share;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.net.Uri;
+import android.os.Build;
+import androidx.core.content.FileProvider;
 import android.util.Log;
 
-import androidx.annotation.NonNull;
-import androidx.core.app.ShareCompat;
-import androidx.core.content.FileProvider;
-
-import de.danoeh.antennapod.ui.common.Converter;
 import java.io.File;
-import java.net.URLEncoder;
+import java.util.List;
 
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
+import de.danoeh.antennapod.ui.common.Converter;
+
 
 /** Utility methods for sharing data */
 public class ShareUtils {
     private static final String TAG = "ShareUtils";
-    private static final int ABBREVIATE_MAX_LENGTH = 50;
 
     private ShareUtils() {
     }
 
-    public static void shareLink(@NonNull Context context, @NonNull String text) {
-        Intent intent = new ShareCompat.IntentBuilder(context)
-                .setType("text/plain")
-                .setText(text)
-                .setChooserTitle(R.string.share_url_label)
-                .createChooserIntent();
-        context.startActivity(intent);
+    public static void shareLink(Context context, String text) {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType("text/plain");
+        i.putExtra(Intent.EXTRA_TEXT, text);
+        context.startActivity(Intent.createChooser(i, context.getString(R.string.share_url_label)));
     }
 
-    public static void shareFeedLink(Context context, Feed feed) {
-        String feedurl = URLEncoder.encode(feed.getDownloadUrl());
-        feedurl = feedurl.replace("htt", "%68%74%74"); // To not confuse users by having a url inside a url
-        String text = feed.getTitle() + "\n\n"
-                + "https://antennapod.org/deeplink/subscribe/?url=" + feedurl
-                + "&title=" + URLEncoder.encode(feed.getTitle());
-        shareLink(context, text);
+    public static void shareFeedlink(Context context, Feed feed) {
+        shareLink(context, feed.getTitle() + ": " + feed.getLink());
+    }
+
+    public static void shareFeedDownloadLink(Context context, Feed feed) {
+        shareLink(context, feed.getTitle() + ": " + feed.getDownloadUrl());
+    }
+
+    public static void shareFeedItemLink(Context context, FeedItem item) {
+        shareFeedItemLink(context, item, false);
+    }
+
+    public static void shareFeedItemDownloadLink(Context context, FeedItem item) {
+        shareFeedItemDownloadLink(context, item, false);
+    }
+
+    public static String getItemShareText(FeedItem item) {
+        return item.getFeed().getTitle() + ": " + item.getTitle();
     }
 
     public static boolean hasLinkToShare(FeedItem item) {
         return item.getLinkWithFallback() != null;
     }
 
-    public static String getSocialFeedItemShareText(Context context, FeedItem item,
-                                                    boolean withPosition, boolean abbreviate) {
-        String text = item.getFeed().getTitle() + ": ";
-
-        if (abbreviate && item.getTitle().length() > ABBREVIATE_MAX_LENGTH) {
-            text += item.getTitle().substring(0, ABBREVIATE_MAX_LENGTH) + "…";
-        } else {
-            text += item.getTitle();
+    public static void shareFeedItemLink(Context context, FeedItem item, boolean withPosition) {
+        String text = getItemShareText(item) + " " + item.getLinkWithFallback();
+        if (withPosition) {
+            int pos = item.getMedia().getPosition();
+            text += " [" + Converter.getDurationStringLong(pos) + "]";
         }
+        shareLink(context, text);
+    }
 
-        if (item.getMedia() != null && withPosition) {
-            text += "\n" + context.getResources().getString(R.string.share_starting_position_label) + ": ";
-            text +=  Converter.getDurationStringLong(item.getMedia().getPosition());
+    public static void shareFeedItemDownloadLink(Context context, FeedItem item, boolean withPosition) {
+        String text = getItemShareText(item) + " " + item.getMedia().getDownloadUrl();
+        if (withPosition) {
+            int pos = item.getMedia().getPosition();
+            text += "#t=" + pos / 1000;
+            text += " [" + Converter.getDurationStringLong(pos) + "]";
         }
-
-        if (hasLinkToShare(item)) {
-            if (!abbreviate) {
-                text += "\n";
-            }
-            text +=  "\n" + context.getResources().getString(R.string.share_dialog_episode_website_label) + ": ";
-            if (abbreviate && item.getLinkWithFallback().length() > ABBREVIATE_MAX_LENGTH) {
-                text += item.getLinkWithFallback().substring(0, ABBREVIATE_MAX_LENGTH) + "…";
-            } else {
-                text += item.getLinkWithFallback();
-            }
-        }
-
-        if (item.getMedia() != null && item.getMedia().getDownloadUrl() != null) {
-            if (!abbreviate) {
-                text += "\n";
-            }
-            text += "\n" + context.getResources().getString(R.string.share_dialog_media_file_label) + ": ";
-            if (abbreviate && item.getMedia().getDownloadUrl().length() > ABBREVIATE_MAX_LENGTH) {
-                text += item.getMedia().getDownloadUrl().substring(0, ABBREVIATE_MAX_LENGTH) + "…";
-            } else {
-                text += item.getMedia().getDownloadUrl();
-            }
-            if (withPosition) {
-                text += "#t=" + item.getMedia().getPosition() / 1000;
-            }
-        }
-        return text;
+        shareLink(context, text);
     }
 
     public static void shareFeedItemFile(Context context, FeedMedia media) {
+        Intent i = new Intent(Intent.ACTION_SEND);
+        i.setType(media.getMimeType());
         Uri fileUri = FileProvider.getUriForFile(context, context.getString(R.string.provider_authority),
                 new File(media.getLocalFileUrl()));
-
-        new ShareCompat.IntentBuilder(context)
-                .setType(media.getMimeType())
-                .addStream(fileUri)
-                .setChooserTitle(R.string.share_file_label)
-                .startChooser();
-
+        i.putExtra(Intent.EXTRA_STREAM,  fileUri);
+        i.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.KITKAT) {
+            List<ResolveInfo> resInfoList = context.getPackageManager()
+                    .queryIntentActivities(i, PackageManager.MATCH_DEFAULT_ONLY);
+            for (ResolveInfo resolveInfo : resInfoList) {
+                String packageName = resolveInfo.activityInfo.packageName;
+                context.grantUriPermission(packageName, fileUri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+        }
+        context.startActivity(Intent.createChooser(i, context.getString(R.string.share_file_label)));
         Log.e(TAG, "shareFeedItemFile called");
     }
 }

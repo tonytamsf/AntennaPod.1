@@ -12,7 +12,7 @@ import android.widget.ImageButton;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.cardview.widget.CardView;
@@ -31,11 +31,19 @@ import de.danoeh.antennapod.ui.appstartintent.OnlineFeedviewActivityStarter;
 import de.danoeh.antennapod.ui.chapters.ChapterUtils;
 import de.danoeh.antennapod.ui.episodes.PlaybackSpeedUtils;
 import de.danoeh.antennapod.ui.episodes.TimeSpeedConverter;
+import de.danoeh.antennapod.ui.episodeslist.FeedItemMenuHandler;
 import de.danoeh.antennapod.ui.screen.playback.MediaPlayerErrorDialog;
 import de.danoeh.antennapod.ui.screen.playback.PlayButton;
 import de.danoeh.antennapod.ui.screen.playback.SleepTimerDialog;
 import de.danoeh.antennapod.ui.screen.playback.TranscriptDialogFragment;
 import de.danoeh.antennapod.ui.screen.playback.VariableSpeedDialog;
+import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.activity.MainActivity;
+import de.danoeh.antennapod.event.NotesEvent;
+import io.reactivex.Maybe;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.Disposable;
+import io.reactivex.schedulers.Schedulers;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -45,8 +53,6 @@ import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.List;
 
-import de.danoeh.antennapod.R;
-import de.danoeh.antennapod.activity.MainActivity;
 import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.screen.feed.preferences.SkipPreferenceDialog;
 import de.danoeh.antennapod.event.FavoritesEvent;
@@ -57,17 +63,12 @@ import de.danoeh.antennapod.event.playback.PlaybackPositionEvent;
 import de.danoeh.antennapod.event.playback.PlaybackServiceEvent;
 import de.danoeh.antennapod.event.playback.SleepTimerUpdatedEvent;
 import de.danoeh.antennapod.event.playback.SpeedChangedEvent;
-import de.danoeh.antennapod.ui.episodeslist.FeedItemMenuHandler;
 import de.danoeh.antennapod.model.feed.Chapter;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.playback.Playable;
 import de.danoeh.antennapod.playback.cast.CastEnabledActivity;
 import de.danoeh.antennapod.storage.preferences.UserPreferences;
-import io.reactivex.Maybe;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
-import io.reactivex.schedulers.Schedulers;
 
 /**
  * Shows the audio player.
@@ -252,25 +253,25 @@ public class AudioPlayerFragment extends Fragment implements
             disposable.dispose();
         }
         disposable = Maybe.<Playable>create(emitter -> {
-            Playable media = controller.getMedia();
-            if (media != null) {
-                if (includingChapters) {
-                    ChapterUtils.loadChapters(media, getContext(), false);
-                }
-                emitter.onSuccess(media);
-            } else {
-                emitter.onComplete();
-            }
-        })
-        .subscribeOn(Schedulers.io())
-        .observeOn(AndroidSchedulers.mainThread())
-        .subscribe(media -> {
-            updateUi(media);
-            if (media.getChapters() == null && !includingChapters) {
-                loadMediaInfo(true);
-            }
-        }, error -> Log.e(TAG, Log.getStackTraceString(error)),
-            () -> updateUi(null));
+                    Playable media = controller.getMedia();
+                    if (media != null) {
+                        if (includingChapters) {
+                            ChapterUtils.loadChapters(media, getContext(), false);
+                        }
+                        emitter.onSuccess(media);
+                    } else {
+                        emitter.onComplete();
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(media -> {
+                            updateUi(media);
+                            if (media.getChapters() == null && !includingChapters) {
+                                loadMediaInfo(true);
+                            }
+                        }, error -> Log.e(TAG, Log.getStackTraceString(error)),
+                        () -> updateUi(null));
     }
 
     private PlaybackController newPlaybackController() {
@@ -301,6 +302,8 @@ public class AudioPlayerFragment extends Fragment implements
         updatePlaybackSpeedButton(new SpeedChangedEvent(PlaybackSpeedUtils.getCurrentPlaybackSpeed(media)));
         setChapterDividers(media);
         setupOptionsMenu(media);
+
+        loadNotes(media);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -332,6 +335,27 @@ public class AudioPlayerFragment extends Fragment implements
         if (disposable != null) {
             disposable.dispose();
         }
+    }
+
+    private void loadNotes(Playable media) {
+        final @Nullable FeedItem feedItem = (media instanceof FeedMedia) ? ((FeedMedia) media).getItem() : null;
+        if (feedItem == null) {
+            return;
+        }
+        if (disposable != null) {
+            disposable.dispose();
+        }
+        Log.d(TAG, "loadNotes: ");
+        /*  TT TODO
+        disposable = Maybe.fromCallable(() -> DBReader.getNoteForEpisode(feedItem))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(
+                        note -> {
+                            Log.d(TAG, "loadNotes got note: " + note);
+                            feedItem.setNote(note);
+                        }, error -> Log.e(TAG, Log.getStackTraceString(error)));
+         */
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -418,7 +442,7 @@ public class AudioPlayerFragment extends Fragment implements
                     sbPosition.highlightCurrentChapter();
                 }
                 txtvSeek.setText(controller.getMedia().getChapters().get(newChapterIndex).getTitle()
-                                + "\n" + Converter.getDurationStringLong(position));
+                        + "\n" + Converter.getDurationStringLong(position));
             } else {
                 txtvSeek.setText(Converter.getDurationStringLong(position));
             }
@@ -467,10 +491,12 @@ public class AudioPlayerFragment extends Fragment implements
         }
         boolean isFeedMedia = media instanceof FeedMedia;
         toolbar.getMenu().findItem(R.id.open_feed_item).setVisible(isFeedMedia);
+        /*  TT TODO
         if (isFeedMedia) {
             FeedItemMenuHandler.onPrepareMenu(toolbar.getMenu(),
                     Collections.singletonList(((FeedMedia) media).getItem()));
         }
+         */
 
         toolbar.getMenu().findItem(R.id.set_sleeptimer_item).setVisible(!controller.sleepTimerActive());
         toolbar.getMenu().findItem(R.id.disable_sleeptimer_item).setVisible(controller.sleepTimerActive());
@@ -574,5 +600,11 @@ public class AudioPlayerFragment extends Fragment implements
 
     public void scrollToPage(int page) {
         scrollToPage(page, false);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onNoteSaved(NotesEvent event) {
+        Log.d(TAG, "onNoteSaved: event called");
+        Toast.makeText(getContext(), R.string.note_saved, Toast.LENGTH_SHORT).show();
     }
 }

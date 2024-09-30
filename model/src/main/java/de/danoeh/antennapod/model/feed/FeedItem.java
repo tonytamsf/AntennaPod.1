@@ -74,6 +74,12 @@ public class FeedItem implements Serializable {
     private boolean autoDownloadEnabled = true;
 
     /**
+     * The id of the notes saved into db for this feeditem
+     * Added note here since we needed access to it from FeedItemMenuHandler which only uses FeedItem
+     */
+    private Note note;
+
+    /**
      * Any tags assigned to this item
      */
     private final Set<String> tags = new HashSet<>();
@@ -485,6 +491,14 @@ public class FeedItem implements Serializable {
 
     public boolean hasTranscript() {
         return (podcastIndexTranscriptUrl != null);
+    }
+
+    public Note getNote() {
+        return note;
+    }
+
+    public void setNote(Note note) {
+        this.note = note;
     }
 
     @NonNull
