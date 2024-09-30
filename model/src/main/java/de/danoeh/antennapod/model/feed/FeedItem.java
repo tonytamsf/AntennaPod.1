@@ -494,6 +494,7 @@ public class FeedItem implements Serializable {
     }
 
     public Note getNote() {
+
         return note;
     }
 

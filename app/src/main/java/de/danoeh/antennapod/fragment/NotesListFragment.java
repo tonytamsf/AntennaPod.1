@@ -23,6 +23,7 @@ import de.danoeh.antennapod.NotesAdapter;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.activity.MainActivity;
 import de.danoeh.antennapod.model.feed.Note;
+import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.database.PodDBAdapter;
 import de.danoeh.antennapod.ui.view.EmptyViewHandler;
 import io.reactivex.Observable;
@@ -124,7 +125,7 @@ public class NotesListFragment extends Fragment implements NotesAdapter.OnNoteCl
     }
 
     private List<Note> loadData() {
-        List<Note> notes = (List<Note>) PodDBAdapter.getInstance().getAllNotes();
+        List<Note> notes = DBReader.getAllNoteList();
         return notes;
     }
 

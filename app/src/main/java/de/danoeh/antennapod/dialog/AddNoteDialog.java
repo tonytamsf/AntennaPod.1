@@ -13,7 +13,9 @@ import androidx.fragment.app.DialogFragment;
 import de.danoeh.antennapod.R;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.Note;
+import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.database.DBWriter;
+import de.danoeh.antennapod.storage.database.PodDBAdapter;
 import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.share.ShareUtils;
 
@@ -45,13 +47,13 @@ public class AddNoteDialog extends DialogFragment {
             ctx = getActivity();
             item = (FeedItem) getArguments().getSerializable(ARGUMENT_FEED_ITEM);
         }
-        Note note = item.getNote();
+        PodDBAdapter adapter = PodDBAdapter.getInstance();
+        Note note = DBReader.noteFromCursor(adapter.getNote(item));
         if (note == null) {
             note = new Note();
-            item.setNote(note);
         }
+        item.setNote(note);
 
-        Log.d(TAG, "onCreateDialog: note " + note);
         View content = View.inflate(ctx, R.layout.add_note_dialog, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
         builder.setTitle(R.string.notes_dialog_title);

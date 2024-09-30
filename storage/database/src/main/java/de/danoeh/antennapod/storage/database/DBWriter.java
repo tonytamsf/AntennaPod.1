@@ -598,11 +598,11 @@ public class DBWriter {
     }
 
     public static Future<?> saveNote(final FeedItem item) {
-        return dbExec.submit(() -> {
-            final PodDBAdapter adapter = PodDBAdapter.getInstance().open();
-            long id = adapter.setNote(item);
-            adapter.close();
-            EventBus.getDefault().post(NotesEvent.saved(id));
+        return runOnDbThread(() -> {
+             final PodDBAdapter adapter = PodDBAdapter.getInstance().open();
+             long id = adapter.setNote(item);
+             adapter.close();
+             EventBus.getDefault().post(NotesEvent.saved(id));
         });
     }
 

@@ -1469,25 +1469,6 @@ public class PodDBAdapter {
     }
 
     /**
-     * Insert raw data to the database.
-     * Select number of items, new items, the date of the latest episode and the number of episodes in progress. The result
-     * is sorted by the title of the feed.
-     */
-    private static final String FEED_STATISTICS_QUERY = "SELECT Feeds.id, num_items, new_items, latest_episode, in_progress FROM " +
-            " Feeds LEFT JOIN " +
-            "(SELECT feed,count(*) AS num_items," +
-            " COUNT(CASE WHEN read=0 THEN 1 END) AS new_items," +
-            " MAX(pubDate) AS latest_episode," +
-            " COUNT(CASE WHEN position>0 THEN 1 END) AS in_progress," +
-            " COUNT(CASE WHEN downloaded=1 THEN 1 END) AS episodes_downloaded " +
-            " FROM FeedItems LEFT JOIN FeedMedia ON FeedItems.id=FeedMedia.feeditem GROUP BY FeedItems.feed)" +
-            " ON Feeds.id = feed ORDER BY Feeds.title COLLATE NOCASE ASC;";
-
-    public Cursor getFeedStatisticsCursor() {
-        return db.rawQuery(FEED_STATISTICS_QUERY, null);
-    }
-
-    /**
      * Inserts or updates a note for an episode
      *
      * @return the id of the entry
@@ -1518,6 +1499,9 @@ public class PodDBAdapter {
         return db.rawQuery(query, null);
     }
 
+    /* TT TODO
+     * loading the entire database is likely not the right way
+     */
     public Cursor getAllNotes() {
         String query = String.format(Locale.US, "SELECT * from %s ORDER BY %s DESC", TABLE_NAME_NOTES, KEY_ID);
         return db.rawQuery(query, null);

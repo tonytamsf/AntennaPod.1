@@ -1,6 +1,8 @@
 package de.danoeh.antennapod.storage.database;
 
+import android.database.AbstractCursor;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -790,19 +792,41 @@ public final class DBReader {
             adapter.close();
         }
     }
+
+    public static List<Note> getAllNoteList() {
+        PodDBAdapter adapter = PodDBAdapter.getInstance();
+        adapter.open();
+        Cursor cursor = adapter.getAllNotes();
+        List<Note> notes = new ArrayList<>();
+
+        while (cursor.moveToNext()) {
+           notes.add(noteFromCursor(cursor));
+        }
+        adapter.close();
+        return notes;
+    }
+
     public static Note noteFromCursor(Cursor cursor) {
-        int indexId = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_ID);
-        int indexNotes = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_NOTES);
-        int indexFeedTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_TITLE);
-        int indexFeedItemTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_ITEM_TITLE);
+        if(cursor == null) {
+            return null;
+        }
+        try {
+            cursor.moveToNext();
+            int indexId = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_ID);
+            int indexNotes = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_NOTES);
+            int indexFeedTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_TITLE);
+            int indexFeedItemTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_ITEM_TITLE);
 
-        long id = cursor.getInt(indexId);
-        String notes = cursor.getString(indexNotes);
-        String feedTitle = cursor.getString(indexFeedTitle);
-        String feedItemTitle = cursor.getString(indexFeedItemTitle);
+            long id = cursor.getInt(indexId);
+            String notes = cursor.getString(indexNotes);
+            String feedTitle = cursor.getString(indexFeedTitle);
+            String feedItemTitle = cursor.getString(indexFeedItemTitle);
 
-        Note note = new Note(id, notes, feedTitle, feedItemTitle);
-        Log.d(TAG, "fromCursor: " + note);
-        return note;
+            Note note = new Note(id, notes, feedTitle, feedItemTitle);
+            Log.d(TAG, "fromCursor: " + note);
+            return note;
+        } catch (CursorIndexOutOfBoundsException e) {
+            return null;
+        }
     }
 }

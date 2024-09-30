@@ -72,6 +72,7 @@ public class FeedItemMenuHandler {
         boolean canAddFavorite = false;
         boolean canRemoveFavorite = false;
         boolean canShowTranscript = selectedItems.size() == 1;
+        boolean canShowNotes = selectedItems.size() == 1;
 
         for (FeedItem item : selectedItems) {
             boolean hasMedia = item.getMedia() != null;
@@ -89,6 +90,7 @@ public class FeedItemMenuHandler {
             canAddFavorite |= !item.isTagged(FeedItem.TAG_FAVORITE);
             canRemoveFavorite |= item.isTagged(FeedItem.TAG_FAVORITE);
             canShowTranscript |= item.hasTranscript();
+            canShowNotes &= !item.getFeed().isLocalFeed();
         }
 
         if (selectedItems.size() > 1) {
@@ -106,9 +108,7 @@ public class FeedItemMenuHandler {
         setItemVisibility(menu, R.id.mark_read_item, canMarkPlayed);
         setItemVisibility(menu, R.id.mark_unread_item, canMarkUnplayed);
         setItemVisibility(menu, R.id.reset_position, canResetPosition);
-        /* TT TODO
-        setItemVisibility(menu, R.id.add_note, !selectedItem.getFeed().isLocalFeed());
-         */
+        setItemVisibility(menu, R.id.add_note, canShowNotes);
 
         // Display proper strings when item has no media
         if (selectedItems.size() == 1 && selectedItems.get(0).getMedia() == null) {
