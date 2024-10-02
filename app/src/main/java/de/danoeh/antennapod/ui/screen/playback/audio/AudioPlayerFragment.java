@@ -25,7 +25,10 @@ import com.google.android.material.appbar.MaterialToolbar;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 
 import de.danoeh.antennapod.model.feed.Feed;
+import de.danoeh.antennapod.model.feed.Note;
 import de.danoeh.antennapod.playback.service.PlaybackController;
+import de.danoeh.antennapod.storage.database.DBReader;
+import de.danoeh.antennapod.storage.database.PodDBAdapter;
 import de.danoeh.antennapod.ui.appstartintent.MediaButtonStarter;
 import de.danoeh.antennapod.ui.appstartintent.OnlineFeedviewActivityStarter;
 import de.danoeh.antennapod.ui.chapters.ChapterUtils;
@@ -346,16 +349,14 @@ public class AudioPlayerFragment extends Fragment implements
             disposable.dispose();
         }
         Log.d(TAG, "loadNotes: ");
-        /*  TT TODO
-        disposable = Maybe.fromCallable(() -> DBReader.getNoteForEpisode(feedItem))
+        disposable = Maybe.fromCallable(() -> PodDBAdapter.getInstance().getNote(feedItem))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
-                        note -> {
-                            Log.d(TAG, "loadNotes got note: " + note);
+                        cursor -> {
+                            Note note = DBReader.noteFromCursor(cursor);
                             feedItem.setNote(note);
                         }, error -> Log.e(TAG, Log.getStackTraceString(error)));
-         */
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
