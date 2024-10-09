@@ -38,7 +38,7 @@ import java.util.List;
  */
 public class NotesListFragment extends Fragment implements NotesAdapter.OnNoteClickListener {
 
-    public static final String TAG = "NotesFragment";
+    public static final String TAG = "NotesListFragment";
     private RecyclerView recyclerView;
     private EmptyViewHandler emptyView;
     private ProgressBar progLoading;
@@ -125,8 +125,8 @@ public class NotesListFragment extends Fragment implements NotesAdapter.OnNoteCl
     }
 
     private List<Note> loadData() {
-        List<Note> notes = DBReader.getAllNoteList();
-        return notes;
+        List<Note> allNotes = DBReader.getAllNoteList();
+        return allNotes;
     }
 
     @Override

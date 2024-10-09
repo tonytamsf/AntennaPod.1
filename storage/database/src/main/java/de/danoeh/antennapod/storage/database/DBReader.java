@@ -796,14 +796,18 @@ public final class DBReader {
     public static List<Note> getAllNoteList() {
         PodDBAdapter adapter = PodDBAdapter.getInstance();
         adapter.open();
-        Cursor cursor = adapter.getAllNotes();
         List<Note> notes = new ArrayList<>();
-
-        while (cursor.moveToNext()) {
-           notes.add(noteFromCursor(cursor));
+        try (Cursor cursor = adapter.getAllNotes()) {
+            while (cursor.moveToNext()) {
+                notes.add(noteFromCursor(cursor));
+            }
+        } catch(Exception e) {
+            Log.e(TAG, "getAllNoteList: ", e);
+        } finally {
+            adapter.close();
+            Log.d(TAG, "getAllNoteList: " + notes);
+            return notes;
         }
-        adapter.close();
-        return notes;
     }
 
     public static Note noteFromCursor(Cursor cursor) {
@@ -811,7 +815,6 @@ public final class DBReader {
             return null;
         }
         try {
-            cursor.moveToNext();
             int indexId = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_ID);
             int indexNotes = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_NOTES);
             int indexFeedTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_TITLE);

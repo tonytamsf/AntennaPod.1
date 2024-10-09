@@ -53,6 +53,9 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
     public final void onBindViewHolder(NotesViewHolder holder, int pos) {
 
         Note item = mNotes.get(pos);
+        if (item == null) {
+            return;
+        }
         holder.tvNoteTitle.setText(item.getFeedItemTitle());
         holder.tvNote.setText(item.getNotes());
     }

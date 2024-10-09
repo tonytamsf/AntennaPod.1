@@ -108,6 +108,7 @@ public class FeedItem implements Serializable {
         this.itemIdentifier = itemIdentifier;
         this.autoDownloadEnabled = autoDownloadEnabled;
         this.podcastIndexChapterUrl = podcastIndexChapterUrl;
+        this.note = new Note();
         if (transcriptUrl != null) {
             this.podcastIndexTranscriptUrl = transcriptUrl;
             this.podcastIndexTranscriptType = transcriptType;

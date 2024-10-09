@@ -349,13 +349,15 @@ public class AudioPlayerFragment extends Fragment implements
             disposable.dispose();
         }
         Log.d(TAG, "loadNotes: ");
-        disposable = Maybe.fromCallable(() -> PodDBAdapter.getInstance().getNote(feedItem))
+        PodDBAdapter adapter = PodDBAdapter.getInstance();
+        disposable = Maybe.fromCallable(() -> adapter.open().getNote(feedItem))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(
                         cursor -> {
                             Note note = DBReader.noteFromCursor(cursor);
                             feedItem.setNote(note);
+                            adapter.close();
                         }, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 
