@@ -799,7 +799,8 @@ public final class DBReader {
         List<Note> notes = new ArrayList<>();
         try (Cursor cursor = adapter.getAllNotes()) {
             while (cursor.moveToNext()) {
-                notes.add(noteFromCursor(cursor));
+                // TT TODO
+//                notes.add(noteFromCursor(cursor));
             }
         } catch(Exception e) {
             Log.e(TAG, "getAllNoteList: ", e);
@@ -807,29 +808,6 @@ public final class DBReader {
             adapter.close();
             Log.d(TAG, "getAllNoteList: " + notes);
             return notes;
-        }
-    }
-
-    public static Note noteFromCursor(Cursor cursor) {
-        if(cursor == null) {
-            return null;
-        }
-        try {
-            int indexId = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_ID);
-            int indexNotes = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_NOTES);
-            int indexFeedTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_TITLE);
-            int indexFeedItemTitle = cursor.getColumnIndexOrThrow(PodDBAdapter.KEY_FEED_ITEM_TITLE);
-
-            long id = cursor.getInt(indexId);
-            String notes = cursor.getString(indexNotes);
-            String feedTitle = cursor.getString(indexFeedTitle);
-            String feedItemTitle = cursor.getString(indexFeedItemTitle);
-
-            Note note = new Note(id, notes, feedTitle, feedItemTitle);
-            Log.d(TAG, "fromCursor: " + note);
-            return note;
-        } catch (CursorIndexOutOfBoundsException e) {
-            return null;
         }
     }
 }

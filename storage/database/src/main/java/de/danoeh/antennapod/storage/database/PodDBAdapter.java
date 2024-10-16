@@ -53,7 +53,7 @@ public class PodDBAdapter {
 
     private static final String TAG = "PodDBAdapter";
     public static final String DATABASE_NAME = "Antennapod.db";
-    public static final int VERSION = 3050000;
+    public static final int VERSION = 3070000;
 
     /**
      * Maximum number of arguments for IN-operator.
@@ -125,6 +125,7 @@ public class PodDBAdapter {
     public static final String KEY_STATE = "state";
     public static final String KEY_PODCASTINDEX_TRANSCRIPT_URL = "podcastindex_transcript_url";
     public static final String KEY_PODCASTINDEX_TRANSCRIPT_TYPE = "podcastindex_transcript_type";
+    public static final String KEY_USER_NOTES_JSON = "user_notes";
 
     public static final String KEY_NOTES = "notes";
     //store titles so we can display them in the UI in the Notes screen
@@ -252,11 +253,6 @@ public class PodDBAdapter {
     static final String CREATE_TABLE_FAVORITES = "CREATE TABLE "
             + TABLE_NAME_FAVORITES + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
             + KEY_FEEDITEM + " INTEGER," + KEY_FEED + " INTEGER)";
-
-    static final String CREATE_TABLE_NOTES = "CREATE TABLE "
-            + TABLE_NAME_NOTES + "(" + KEY_ID + " INTEGER PRIMARY KEY,"
-            + KEY_FEEDITEM + " INTEGER," + KEY_FEED + " INTEGER," + KEY_NOTES + " TEXT," + KEY_FEED_TITLE + " TEXT,"
-            + KEY_FEED_ITEM_TITLE + " TEXT)";
 
     /**
      * All the tables in the database
@@ -700,6 +696,10 @@ public class PodDBAdapter {
         if (url != null) {
             values.put(KEY_PODCASTINDEX_TRANSCRIPT_TYPE, type);
             values.put(KEY_PODCASTINDEX_TRANSCRIPT_URL, url);
+        }
+
+        if (item.getNote() != null) {
+           values.put(KEY_USER_NOTES_JSON, "{\"noteObj\":\"" + item.getNote() + "\"}");
         }
 
         if (item.getId() == 0) {
@@ -1468,37 +1468,6 @@ public class PodDBAdapter {
         return db.rawQuery(sb.toString(), null);
     }
 
-    /**
-     * Inserts or updates a note for an episode
-     *
-     * @return the id of the entry
-     */
-    public long setNote(FeedItem item) {
-        ContentValues values = new ContentValues();
-        values.put(KEY_FEEDITEM, item.getId());
-        values.put(KEY_FEED, item.getFeedId());
-        Note note = item.getNote();
-        values.put(KEY_NOTES, note.getNotes());
-        values.put(KEY_FEED_TITLE, item.getFeed().getFeedTitle());
-        values.put(KEY_FEED_ITEM_TITLE, item.getTitle());
-        if (note.getNoteId() == 0) {
-            long noteId = db.insert(TABLE_NAME_NOTES, null, values);
-            note.setNoteId(noteId);
-            Log.d(TAG, "setNote: inserted new note with id: " + noteId);
-        } else {
-            db.update(TABLE_NAME_NOTES, values, KEY_ID + "=?",
-                    new String[]{String.valueOf(note.getNoteId())});
-            Log.d(TAG, "setNote: updated existing note " + note.getNotes());
-        }
-        return note.getNoteId();
-    }
-
-    public Cursor getNote(FeedItem item) {
-        String query = String.format(Locale.US, "SELECT * from %s WHERE %s=%d",
-                TABLE_NAME_NOTES, KEY_FEEDITEM, item.getId());
-        return db.rawQuery(query, null);
-    }
-
     /* TT TODO
      * loading the entire database is likely not the right way
      */
@@ -1562,7 +1531,6 @@ public class PodDBAdapter {
             db.execSQL(CREATE_TABLE_QUEUE);
             db.execSQL(CREATE_TABLE_SIMPLECHAPTERS);
             db.execSQL(CREATE_TABLE_FAVORITES);
-            db.execSQL(CREATE_TABLE_NOTES);
 
             db.execSQL(CREATE_INDEX_FEEDITEMS_FEED);
             db.execSQL(CREATE_INDEX_FEEDITEMS_PUBDATE);

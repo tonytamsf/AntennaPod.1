@@ -47,12 +47,10 @@ public class AddNoteDialog extends DialogFragment {
             ctx = getActivity();
             item = (FeedItem) getArguments().getSerializable(ARGUMENT_FEED_ITEM);
         }
-        PodDBAdapter adapter = PodDBAdapter.getInstance();
-        Note note = DBReader.noteFromCursor(adapter.getNote(item));
+        Note note = item.getNote();
         if (note == null) {
             note = new Note();
         }
-        item.setNote(note);
 
         View content = View.inflate(ctx, R.layout.add_note_dialog, null);
         AlertDialog.Builder builder = new AlertDialog.Builder(ctx);
@@ -79,7 +77,7 @@ public class AddNoteDialog extends DialogFragment {
             String finalNote = mNotesView.getText() != null ? mNotesView.getText().toString() : null;
             Log.d(TAG, "final note: " + finalNote);
             item.getNote().setNotes(finalNote);
-            DBWriter.saveNote(item);
+            DBWriter.setFeedItem(item);
         }).setNegativeButton(R.string.cancel_label, (dialog, id) -> dialog.dismiss());
 
         return builder.create();

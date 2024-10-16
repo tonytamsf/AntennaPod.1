@@ -77,7 +77,7 @@ public class FeedItem implements Serializable {
      * The id of the notes saved into db for this feeditem
      * Added note here since we needed access to it from FeedItemMenuHandler which only uses FeedItem
      */
-    private Note note;
+    private Note note = null;
 
     /**
      * Any tags assigned to this item
@@ -95,7 +95,7 @@ public class FeedItem implements Serializable {
     public FeedItem(long id, String title, String link, Date pubDate, String paymentLink, long feedId,
                     boolean hasChapters, String imageUrl, int state,
                     String itemIdentifier, boolean autoDownloadEnabled, String podcastIndexChapterUrl,
-                    String transcriptType, String transcriptUrl) {
+                    String transcriptType, String transcriptUrl, String note) {
         this.id = id;
         this.title = title;
         this.link = link;
@@ -108,7 +108,12 @@ public class FeedItem implements Serializable {
         this.itemIdentifier = itemIdentifier;
         this.autoDownloadEnabled = autoDownloadEnabled;
         this.podcastIndexChapterUrl = podcastIndexChapterUrl;
-        this.note = new Note();
+        if (note != null) {
+            this.note = new Note();
+            this.note.setNotes(note);
+            JSONDeserializer<Note> deserializer = new JSONDeserializer<Note>();
+            this.note = deserializer.deserializeInto(jsonStr, emp);
+        }
         if (transcriptUrl != null) {
             this.podcastIndexTranscriptUrl = transcriptUrl;
             this.podcastIndexTranscriptType = transcriptType;
@@ -495,7 +500,6 @@ public class FeedItem implements Serializable {
     }
 
     public Note getNote() {
-
         return note;
     }
 

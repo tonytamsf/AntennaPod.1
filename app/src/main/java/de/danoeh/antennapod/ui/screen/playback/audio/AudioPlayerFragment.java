@@ -305,8 +305,6 @@ public class AudioPlayerFragment extends Fragment implements
         updatePlaybackSpeedButton(new SpeedChangedEvent(PlaybackSpeedUtils.getCurrentPlaybackSpeed(media)));
         setChapterDividers(media);
         setupOptionsMenu(media);
-
-        loadNotes(media);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -338,27 +336,6 @@ public class AudioPlayerFragment extends Fragment implements
         if (disposable != null) {
             disposable.dispose();
         }
-    }
-
-    private void loadNotes(Playable media) {
-        final @Nullable FeedItem feedItem = (media instanceof FeedMedia) ? ((FeedMedia) media).getItem() : null;
-        if (feedItem == null) {
-            return;
-        }
-        if (disposable != null) {
-            disposable.dispose();
-        }
-        Log.d(TAG, "loadNotes: ");
-        PodDBAdapter adapter = PodDBAdapter.getInstance();
-        disposable = Maybe.fromCallable(() -> adapter.open().getNote(feedItem))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(
-                        cursor -> {
-                            Note note = DBReader.noteFromCursor(cursor);
-                            feedItem.setNote(note);
-                            adapter.close();
-                        }, error -> Log.e(TAG, Log.getStackTraceString(error)));
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

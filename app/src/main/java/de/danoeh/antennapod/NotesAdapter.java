@@ -56,7 +56,8 @@ public class NotesAdapter extends RecyclerView.Adapter<NotesAdapter.NotesViewHol
         if (item == null) {
             return;
         }
-        holder.tvNoteTitle.setText(item.getFeedItemTitle());
+        // TT TODO
+        // holder.tvNoteTitle.setText(item.());
         holder.tvNote.setText(item.getNotes());
     }
 

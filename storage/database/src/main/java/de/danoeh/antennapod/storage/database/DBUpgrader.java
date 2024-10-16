@@ -350,8 +350,9 @@ class DBUpgrader {
                     + " ADD COLUMN " + PodDBAdapter.KEY_PODCASTINDEX_TRANSCRIPT_TYPE + " TEXT");
         }
 
-        if (oldVersion < 3060000) {
-            db.execSQL(PodDBAdapter.CREATE_TABLE_NOTES);
+        if (oldVersion < 3070000) {
+            db.execSQL("ALTER TABLE " + PodDBAdapter.TABLE_NAME_FEED_ITEMS
+                    + " ADD COLUMN " + PodDBAdapter.KEY_USER_NOTES_JSON + " TEXT");
         }
     }
 
