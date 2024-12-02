@@ -34,7 +34,6 @@ import de.danoeh.antennapod.ui.TransitionEffect;
 import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.database.FeedDatabaseWriter;
 import de.danoeh.antennapod.ui.common.IntentUtils;
-import de.danoeh.antennapod.ui.share.ShareUtils;
 import de.danoeh.antennapod.ui.cleaner.HtmlToPlainText;
 import de.danoeh.antennapod.model.feed.Feed;
 import de.danoeh.antennapod.model.feed.FeedFunding;
@@ -50,6 +49,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import org.apache.commons.lang3.StringUtils;
+import de.danoeh.antennapod.ui.share.ShareUtils;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -281,7 +281,7 @@ public class FeedInfoFragment extends Fragment implements MaterialToolbar.OnMenu
         if (item.getItemId() == R.id.visit_website_item) {
             IntentUtils.openInBrowser(getContext(), feed.getLink());
         } else if (item.getItemId() == R.id.share_item) {
-            ShareUtils.shareFeedLink(getContext(), feed);
+            ShareUtils.shareFeedlink(getContext(), feed);
         } else if (item.getItemId() == R.id.reconnect_local_folder) {
             MaterialAlertDialogBuilder alert = new MaterialAlertDialogBuilder(getContext());
             alert.setMessage(R.string.reconnect_local_folder_warning);

@@ -25,13 +25,14 @@ import de.danoeh.antennapod.storage.database.DBWriter;
 import de.danoeh.antennapod.storage.preferences.SynchronizationSettings;
 import de.danoeh.antennapod.ui.common.IntentUtils;
 import de.danoeh.antennapod.playback.service.PlaybackStatus;
-import de.danoeh.antennapod.ui.share.ShareUtils;
 import de.danoeh.antennapod.ui.share.ShareDialog;
+import de.danoeh.antennapod.dialog.AddNoteDialog;
 import de.danoeh.antennapod.model.feed.FeedItem;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.net.sync.serviceinterface.EpisodeAction;
 import de.danoeh.antennapod.storage.preferences.UserPreferences;
 import de.danoeh.antennapod.ui.appstartintent.MediaButtonStarter;
+import de.danoeh.antennapod.ui.share.ShareUtils;
 import de.danoeh.antennapod.ui.view.LocalDeleteModal;
 
 /**
@@ -71,6 +72,7 @@ public class FeedItemMenuHandler {
         boolean canAddFavorite = false;
         boolean canRemoveFavorite = false;
         boolean canShowTranscript = selectedItems.size() == 1;
+        boolean canShowNotes = selectedItems.size() == 1;
 
         for (FeedItem item : selectedItems) {
             boolean hasMedia = item.getMedia() != null;
@@ -88,6 +90,7 @@ public class FeedItemMenuHandler {
             canAddFavorite |= !item.isTagged(FeedItem.TAG_FAVORITE);
             canRemoveFavorite |= item.isTagged(FeedItem.TAG_FAVORITE);
             canShowTranscript |= item.hasTranscript();
+            canShowNotes &= !item.getFeed().isLocalFeed();
         }
 
         if (selectedItems.size() > 1) {
@@ -105,6 +108,7 @@ public class FeedItemMenuHandler {
         setItemVisibility(menu, R.id.mark_read_item, canMarkPlayed);
         setItemVisibility(menu, R.id.mark_unread_item, canMarkUnplayed);
         setItemVisibility(menu, R.id.reset_position, canResetPosition);
+        setItemVisibility(menu, R.id.add_note, canShowNotes);
 
         // Display proper strings when item has no media
         if (selectedItems.size() == 1 && selectedItems.get(0).getMedia() == null) {
@@ -228,6 +232,9 @@ public class FeedItemMenuHandler {
         } else if (menuItemId == R.id.share_item) {
             ShareDialog shareDialog = ShareDialog.newInstance(selectedItem);
             shareDialog.show((fragment.getActivity().getSupportFragmentManager()), "ShareEpisodeDialog");
+        } else if (menuItemId == R.id.add_note) {
+            AddNoteDialog addNoteDialog = AddNoteDialog.newInstance(selectedItem);
+            addNoteDialog.show(fragment.getActivity().getSupportFragmentManager(), "AddNoteForEpisodeDialog");
         } else {
             Log.d(TAG, "Unknown menuItemId: " + menuItemId);
             return false;

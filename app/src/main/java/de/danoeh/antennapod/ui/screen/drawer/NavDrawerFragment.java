@@ -32,7 +32,13 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.shape.MaterialShapeDrawable;
 import com.google.android.material.shape.ShapeAppearanceModel;
 
+import de.danoeh.antennapod.fragment.NotesListFragment;
 import de.danoeh.antennapod.net.download.service.episode.autodownload.EpisodeCleanupAlgorithmFactory;
+import de.danoeh.antennapod.ui.episodeslist.EpisodesListFragment;
+import de.danoeh.antennapod.ui.screen.AddFeedFragment;
+import de.danoeh.antennapod.ui.screen.PlaybackHistoryFragment;
+import de.danoeh.antennapod.ui.screen.home.sections.DownloadsSection;
+import de.danoeh.antennapod.ui.screen.queue.QueueFragment;
 import de.danoeh.antennapod.ui.screen.subscriptions.FeedMenuHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.greenrobot.eventbus.EventBus;
@@ -52,6 +58,7 @@ import de.danoeh.antennapod.storage.database.DBReader;
 import de.danoeh.antennapod.storage.database.NavDrawerData;
 import de.danoeh.antennapod.ui.screen.feed.RemoveFeedDialog;
 import de.danoeh.antennapod.ui.screen.feed.RenameFeedDialog;
+import de.danoeh.antennapod.ui.screen.subscriptions.SubscriptionFragment;
 import de.danoeh.antennapod.ui.screen.subscriptions.SubscriptionsFilterDialog;
 import de.danoeh.antennapod.event.FeedListUpdateEvent;
 import de.danoeh.antennapod.event.QueueEvent;
@@ -73,6 +80,17 @@ public class NavDrawerFragment extends Fragment implements SharedPreferences.OnS
     @VisibleForTesting
     public static final String PREF_NAME = "NavDrawerPrefs";
     public static final String TAG = "NavDrawerFragment";
+
+    public static final String[] NAV_DRAWER_TAGS = {
+            QueueFragment.TAG,
+            EpisodesListFragment.TAG,
+            SubscriptionFragment.TAG,
+            DownloadsSection.TAG,
+            PlaybackHistoryFragment.TAG,
+            NotesListFragment.TAG,
+            AddFeedFragment.TAG,
+            NavListAdapter.SUBSCRIPTION_LIST_TAG
+    };
 
     private NavDrawerData navDrawerData;
     private int reclaimableSpace = 0;

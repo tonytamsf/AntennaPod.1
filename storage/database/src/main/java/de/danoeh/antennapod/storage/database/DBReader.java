@@ -1,6 +1,8 @@
 package de.danoeh.antennapod.storage.database;
 
+import android.database.AbstractCursor;
 import android.database.Cursor;
+import android.database.CursorIndexOutOfBoundsException;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -22,6 +24,7 @@ import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.FeedOrder;
 import de.danoeh.antennapod.model.feed.FeedPreferences;
+import de.danoeh.antennapod.model.feed.Note;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.model.feed.SubscriptionsFilter;
 import de.danoeh.antennapod.model.download.DownloadResult;
@@ -787,6 +790,24 @@ public final class DBReader {
             return items;
         } finally {
             adapter.close();
+        }
+    }
+
+    public static List<Note> getAllNoteList() {
+        PodDBAdapter adapter = PodDBAdapter.getInstance();
+        adapter.open();
+        List<Note> notes = new ArrayList<>();
+        try (Cursor cursor = adapter.getAllNotes()) {
+            while (cursor.moveToNext()) {
+                // TT TODO
+//                notes.add(noteFromCursor(cursor));
+            }
+        } catch(Exception e) {
+            Log.e(TAG, "getAllNoteList: ", e);
+        } finally {
+            adapter.close();
+            Log.d(TAG, "getAllNoteList: " + notes);
+            return notes;
         }
     }
 }

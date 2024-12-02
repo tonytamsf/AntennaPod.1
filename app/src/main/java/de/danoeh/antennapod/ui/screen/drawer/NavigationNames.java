@@ -3,6 +3,7 @@ package de.danoeh.antennapod.ui.screen.drawer;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.StringRes;
 import de.danoeh.antennapod.R;
+import de.danoeh.antennapod.fragment.NotesListFragment;
 import de.danoeh.antennapod.ui.screen.AddFeedFragment;
 import de.danoeh.antennapod.ui.screen.AllEpisodesFragment;
 import de.danoeh.antennapod.ui.screen.InboxFragment;
@@ -31,6 +32,9 @@ public abstract class NavigationNames {
                 return R.drawable.ic_subscriptions;
             case AddFeedFragment.TAG:
                 return R.drawable.ic_add;
+            case NotesListFragment.TAG:
+                return R.drawable.ic_notes_black;
+
             default:
                 return 0;
         }
@@ -56,6 +60,8 @@ public abstract class NavigationNames {
                 return R.string.add_feed_label;
             case NavListAdapter.SUBSCRIPTION_LIST_TAG:
                 return R.string.subscriptions_list_label;
+            case NotesListFragment.TAG:
+                return R.string.notes_list_label;
             default:
                 return 0;
         }

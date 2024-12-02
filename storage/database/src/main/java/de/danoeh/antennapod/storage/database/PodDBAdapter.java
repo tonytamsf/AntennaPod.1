@@ -36,6 +36,7 @@ import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.model.feed.FeedMedia;
 import de.danoeh.antennapod.model.feed.FeedPreferences;
 import de.danoeh.antennapod.model.download.DownloadResult;
+import de.danoeh.antennapod.model.feed.Note;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.storage.database.mapper.FeedItemFilterQuery;
 import de.danoeh.antennapod.storage.database.mapper.FeedItemSortQuery;
@@ -52,7 +53,7 @@ public class PodDBAdapter {
 
     private static final String TAG = "PodDBAdapter";
     public static final String DATABASE_NAME = "Antennapod.db";
-    public static final int VERSION = 3050000;
+    public static final int VERSION = 3070000;
 
     /**
      * Maximum number of arguments for IN-operator.
@@ -124,6 +125,12 @@ public class PodDBAdapter {
     public static final String KEY_STATE = "state";
     public static final String KEY_PODCASTINDEX_TRANSCRIPT_URL = "podcastindex_transcript_url";
     public static final String KEY_PODCASTINDEX_TRANSCRIPT_TYPE = "podcastindex_transcript_type";
+    public static final String KEY_USER_NOTES_JSON = "user_notes";
+
+    public static final String KEY_NOTES = "notes";
+    //store titles so we can display them in the UI in the Notes screen
+    public static final String KEY_FEED_TITLE = "feed_title";
+    public static final String KEY_FEED_ITEM_TITLE = "feed_item_title";
 
     // Table names
     public static final String TABLE_NAME_FEEDS = "Feeds";
@@ -134,6 +141,7 @@ public class PodDBAdapter {
     public static final String TABLE_NAME_QUEUE = "Queue";
     public static final String TABLE_NAME_SIMPLECHAPTERS = "SimpleChapters";
     public static final String TABLE_NAME_FAVORITES = "Favorites";
+    public static final String TABLE_NAME_NOTES = "Notes";
 
     // SQL Statements for creating new tables
     private static final String TABLE_PRIMARY_KEY = KEY_ID
@@ -256,7 +264,8 @@ public class PodDBAdapter {
             TABLE_NAME_DOWNLOAD_LOG,
             TABLE_NAME_QUEUE,
             TABLE_NAME_SIMPLECHAPTERS,
-            TABLE_NAME_FAVORITES
+            TABLE_NAME_FAVORITES,
+            TABLE_NAME_NOTES
     };
 
     public static final String SELECT_KEY_ITEM_ID = "item_id";
@@ -687,6 +696,10 @@ public class PodDBAdapter {
         if (url != null) {
             values.put(KEY_PODCASTINDEX_TRANSCRIPT_TYPE, type);
             values.put(KEY_PODCASTINDEX_TRANSCRIPT_URL, url);
+        }
+
+        if (item.getNote() != null) {
+           values.put(KEY_USER_NOTES_JSON, "{\"noteObj\":\"" + item.getNote() + "\"}");
         }
 
         if (item.getId() == 0) {
@@ -1455,8 +1468,16 @@ public class PodDBAdapter {
         return db.rawQuery(sb.toString(), null);
     }
 
+    /* TT TODO
+     * loading the entire database is likely not the right way
+     */
+    public Cursor getAllNotes() {
+        String query = String.format(Locale.US, "SELECT * from %s ORDER BY %s DESC", TABLE_NAME_NOTES, KEY_ID);
+        return db.rawQuery(query, null);
+    }
+
     /**
-     * Insert raw data to the database.
+     * Insert raw data to the database.     *
      * Call method only for unit tests.
      */
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)

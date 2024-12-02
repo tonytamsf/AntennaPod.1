@@ -14,6 +14,7 @@ import androidx.documentfile.provider.DocumentFile;
 import com.google.common.util.concurrent.Futures;
 import de.danoeh.antennapod.event.DownloadLogEvent;
 
+import de.danoeh.antennapod.event.NotesEvent;
 import de.danoeh.antennapod.model.feed.FeedItemFilter;
 import de.danoeh.antennapod.net.download.serviceinterface.AutoDownloadManager;
 import de.danoeh.antennapod.net.download.serviceinterface.DownloadServiceInterface;
@@ -51,7 +52,6 @@ import de.danoeh.antennapod.model.feed.FeedPreferences;
 import de.danoeh.antennapod.model.feed.SortOrder;
 import de.danoeh.antennapod.model.playback.Playable;
 import de.danoeh.antennapod.net.sync.serviceinterface.EpisodeAction;
-
 /**
  * Provides methods for writing data to AntennaPod's database.
  * In general, DBWriter-methods will be executed on an internal ExecutorService.
@@ -593,6 +593,13 @@ public class DBWriter {
             item.removeTag(FeedItem.TAG_FAVORITE);
             EventBus.getDefault().post(new FavoritesEvent());
             EventBus.getDefault().post(FeedItemEvent.updated(item));
+        });
+    }
+
+    public static Future<?> saveNote(final FeedItem item) {
+        return runOnDbThread(() -> {
+            DBWriter.setFeedItem(item);
+            EventBus.getDefault().post(NotesEvent.saved(item.getId()));
         });
     }
 

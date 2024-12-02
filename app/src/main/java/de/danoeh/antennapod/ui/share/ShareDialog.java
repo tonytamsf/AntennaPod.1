@@ -60,16 +60,24 @@ public class ShareDialog extends BottomSheetDialogFragment {
 
         SharedPreferences prefs = getContext().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         viewBinding.sharePositionCheckbox.setChecked(prefs.getBoolean(PREF_SHARE_EPISODE_START_AT, false));
+        /* TT TODO
         viewBinding.socialMessageText.setText(ShareUtils.getSocialFeedItemShareText(
                 getContext(), item, viewBinding.sharePositionCheckbox.isChecked(), true));
+         */
         viewBinding.sharePositionCheckbox.setOnCheckedChangeListener((buttonView, isChecked) -> {
             prefs.edit().putBoolean(PREF_SHARE_EPISODE_START_AT, isChecked).apply();
+            /* TT TODO
             viewBinding.socialMessageText.setText(
                     ShareUtils.getSocialFeedItemShareText(getContext(), item, isChecked, true));
+
+             */
         });
         viewBinding.socialMessageCard.setOnClickListener(v -> {
+            /* TT TODO
             ShareUtils.shareLink(getContext(), ShareUtils.getSocialFeedItemShareText(
                     getContext(), item, viewBinding.sharePositionCheckbox.isChecked(), false));
+
+             */
             dismiss();
         });
 

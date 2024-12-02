@@ -14,10 +14,10 @@ import de.danoeh.antennapod.ui.screen.feed.RemoveFeedDialog;
 import de.danoeh.antennapod.ui.screen.feed.RenameFeedDialog;
 import de.danoeh.antennapod.ui.screen.feed.preferences.TagSettingsDialog;
 import de.danoeh.antennapod.model.feed.Feed;
-import de.danoeh.antennapod.ui.share.ShareUtils;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import de.danoeh.antennapod.ui.share.ShareUtils;
 
 import java.util.Collections;
 import java.util.concurrent.Callable;
@@ -61,7 +61,7 @@ public abstract class FeedMenuHandler {
         } else if (menuItemId == R.id.remove_feed) {
             RemoveFeedDialog.show(context, selectedFeed, null);
         } else if (menuItemId == R.id.share_feed) {
-            ShareUtils.shareFeedLink(context, selectedFeed);
+            ShareUtils.shareFeedlink(context, selectedFeed);
         } else {
             return false;
         }

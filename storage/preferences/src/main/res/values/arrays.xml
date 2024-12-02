@@ -10,5 +10,6 @@
         <item>PlaybackHistoryFragment</item>
         <item>AddFeedFragment</item>
         <item>SubscriptionList</item>
+        <item>NotesListFragment</item>
     </string-array>
 </resources>

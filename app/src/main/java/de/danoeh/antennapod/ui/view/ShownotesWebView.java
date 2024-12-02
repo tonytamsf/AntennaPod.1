@@ -28,8 +28,8 @@ import de.danoeh.antennapod.ui.MenuItemUtils;
 import de.danoeh.antennapod.ui.common.Converter;
 import de.danoeh.antennapod.ui.common.IntentUtils;
 import de.danoeh.antennapod.net.common.NetworkUtils;
-import de.danoeh.antennapod.ui.share.ShareUtils;
 import de.danoeh.antennapod.ui.cleaner.ShownotesCleaner;
+import de.danoeh.antennapod.ui.share.ShareUtils;
 
 public class ShownotesWebView extends WebView implements View.OnLongClickListener {
     private static final String TAG = "ShownotesWebView";
